@@ -7,9 +7,11 @@
 
 import Foundation
 
-struct Tree {
+class Tree {
     // MARK: Init
     init(x: Int, indepA_B: Bool, indepC_B: Bool, indepC_A: Bool, indepC_AB: Bool) {
+        assert(x % 4 == 0)
+        
         self.x = x
         self.indepA_B = indepA_B
         self.indepC_B = indepC_B
@@ -70,6 +72,16 @@ struct Tree {
     let g: Int
     let h: Int
     
+    // MARK: Cached properties (apparently quite slow to create)
+    private lazy var xRange: Range<Int> = 0..<x
+    private lazy var aRange: Range<Int> = 0..<a
+    private lazy var bRange: Range<Int> = a..<(a+b)
+    private lazy var cRange: Range<Int> = (a+b)..<(a+b+c)
+    private lazy var dRange: Range<Int> = (a+b+c)..<(a+b+c+d)
+    private lazy var eRange: Range<Int> = (a+b+c+d)..<(a+b+c+d+e)
+    private lazy var fRange: Range<Int> = (a+b+c+d+e)..<(a+b+c+d+e+f)
+    private lazy var gRange: Range<Int> = (a+b+c+d+e+f)..<(a+b+c+d+e+f+g)
+    
     // MARK: Computed properties
     var eqG: Double {
         return Double(c + e) / Double(c + e + a + d)
@@ -100,9 +112,9 @@ struct Tree {
 // MARK: Validation
 extension Tree {
     static func generateValidTree(population: Int) -> Tree {
-        let indepA_B = Double.random(in: 0...1) > 0.4
-        let indepC_B = Double.random(in: 0...1) > 0.7
-        let indepC_A = Double.random(in: 0...1) > 0.7
+        let indepA_B  = Double.random(in: 0...1) > 0.4
+        let indepC_B  = Double.random(in: 0...1) > 0.7
+        let indepC_A  = Double.random(in: 0...1) > 0.7
         let indepC_AB = Double.random(in: 0...1) > 0.4
 
         var tree = Tree(x: population, indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB)
@@ -154,16 +166,16 @@ extension Tree {
     }
 
     func pickABranch() -> Tree.Branch {
-        let number = Int.random(in: 0..<x)
+        let number = Int.random(in: xRange)
         switch number {
-        case 0..<a:                             return .a
-        case a..<(a+b):                         return .b
-        case (a+b)..<(a+b+c):                   return .c
-        case (a+b+c)..<(a+b+c+d):               return .d
-        case (a+b+c+d)..<(a+b+c+d+e):           return .e
-        case (a+b+c+d+e)..<(a+b+c+d+e+f):       return .f
-        case (a+b+c+d+e+f)..<(a+b+c+d+e+f+g):   return .g
-        default:                                return .h
+        case aRange: return .a
+        case bRange: return .b
+        case cRange: return .c
+        case dRange: return .d
+        case eRange: return .e
+        case fRange: return .f
+        case gRange: return .g
+        default:     return .h
         }
     }
 }
