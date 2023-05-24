@@ -36,7 +36,7 @@ extension Person {
 extension Person {
     fileprivate static var currentTrait: Int = 1
     private func currentTraits() -> Data {
-        traits.subarray(maxCount: type(of: self).currentTrait)
+        traits.subarray(maxCount: Person.currentTrait)
     }
     
     override func isEqual(_ object: Any?) -> Bool {

@@ -20,6 +20,9 @@ func main() {
         return iteration
     }
     
+    print("Peak memory usage: \(Memory.peakMemoryUsage.sizeString)")
+    sleep(2)
+    
     print("-------")
     print("RESULTS")
     print("-------")

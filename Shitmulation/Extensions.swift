@@ -17,6 +17,16 @@ extension Int {
     }
 }
 
+extension UInt64 {
+    var sizeString: String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .memory
+        formatter.includesCount = true
+        formatter.includesUnit = true
+        return formatter.string(fromByteCount: Int64(self))
+    }
+}
+
 extension TimeInterval {
     var durationString: String {
         return String(format: "%.03lfs", self)

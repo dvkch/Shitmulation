@@ -15,7 +15,7 @@ class Iteration {
         self.verbose = verbose
     }
     
-    // MARK: Parameters
+    // MARK: Properties
     let numberOfTrees: Int
     let population: Int
     let verbose: Bool
@@ -40,11 +40,12 @@ class Iteration {
                 return Tree.generateValidTree(population: population)
             }
         }
+        Memory.updatePeakMemoryUsage()
     }
     
     private func generatePeople() {
         log("Populating \(population.string) people using \(numberOfTrees * 3) traits", newLine: false)
-        self.people = benchmark("> Finished in") {
+        self.people = benchmark("> Finished distributing in") {
             var people = [Person]()
             people.reserveCapacity(population)
             for i in 0..<population {
@@ -64,18 +65,21 @@ class Iteration {
             log("")
             return people
         }
+        Memory.updatePeakMemoryUsage()
     }
     
     private func countUniquePeople() {
-        self.uniqCounts = benchmark("> Finished in") {
+        log("Counting unique over \(population.string) people", newLine: false)
+        self.uniqCounts = benchmark("> Finished counting in") {
             var uniqueStats = [Int]()
             for trait in 1...(numberOfTrees * 3) {
                 let (count, duration) = benchmark {
                     let count = people.countUniqueItems(upTo: trait) + (uniqueStats.last ?? 0)
                     uniqueStats.append(count)
 
-                    // faster than using filter(\.notUnique)
+                    Memory.updatePeakMemoryUsage()
                     self.people = people.filter { $0.unique == false }
+
                     return count
                 }
 
