@@ -26,3 +26,9 @@ for i in (seq 1 120);
 end
 ```
 
+### Possible optimisations 
+
+- pack traits into bits
+- walk the traits _byte by byte_ first, and then compare bit by bit inside those 8-traits segmentation
+- bisect the population while comparing the traits
+- execute by chunks -> generate only a part of the population (possible using pickABranch())

@@ -166,6 +166,8 @@ extension Tree {
     }
 
     func pickABranch() -> Tree.Branch {
+        // TODO: keep count of how many have been handed out
+        // to make sure we respect our actual amount of a, b, c, etc
         let number = Int.random(in: xRange)
         switch number {
         case aRange: return .a
