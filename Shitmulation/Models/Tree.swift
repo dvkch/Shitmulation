@@ -33,14 +33,14 @@ class Tree {
             self.g = defg
         }
         else {
-            let a = Int.random(in: 1..<x)
-            let b = Int.random(in: 1..<x)
-            let c = Int.random(in: 1..<x)
-            let d = Int.random(in: 1..<x)
-            let e = Int.random(in: 1..<x)
-            let f = Int.random(in: 1..<x)
-            let g = Int.random(in: 1..<x)
-            let h = Int.random(in: 1..<x)
+            let a = Int.random(in: 0..<x)
+            let b = Int.random(in: 0..<x)
+            let c = Int.random(in: 0..<x)
+            let d = Int.random(in: 0..<x)
+            let e = Int.random(in: 0..<x)
+            let f = Int.random(in: 0..<x)
+            let g = Int.random(in: 0..<x)
+            let h = Int.random(in: 0..<x)
             
             let factor: Double = Double(x) / Double(a + b + c + d + e + f + g + h)
             
@@ -102,6 +102,7 @@ class Tree {
         return Double(d + g) / Double(d + g + a + h)
     }
     var eqM: Double {
+        guard e + c > 0 else { return 0 }
         return Double(e) / Double(e + c)
     }
     var eqN: Double {
@@ -126,6 +127,35 @@ extension Tree {
     }
 
     var isValid: Bool {
+        // A
+        guard a + c + d + e > 1 else { return false }
+        guard a + c + d + e < x else { return false }
+        
+        // B
+        guard b + h + f + g > 1 else { return false }
+        guard b + h + f + g < x else { return false }
+        
+        // C
+        guard b + c + e + f > 1 else { return false }
+        guard b + c + e + f < x else { return false }
+        
+        // D
+        guard a + h + d + g > 1 else { return false }
+        guard a + h + d + g < x else { return false }
+        
+        // E
+        guard d + e + f + g > 1 else { return false }
+        guard d + e + f + g < x else { return false }
+        
+        // F
+        guard a + b + c + h > 1 else { return false }
+        guard a + b + c + h < x else { return false }
+        
+        // G => N
+        for eq in [eqG, eqH, eqI, eqJ, eqK, eqL, eqM, eqN] {
+            guard eq >= 0 && eq <= 1 else { return false }
+        }
+        
         let cond1 = validate(eqG, eqH, equal: indepA_B,  within: Tree.margin)
         let cond2 = validate(eqI, eqJ, equal: indepC_B,  within: Tree.margin)
         let cond3 = validate(eqK, eqL, equal: indepC_A,  within: Tree.margin)
