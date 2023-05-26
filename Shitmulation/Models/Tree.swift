@@ -72,15 +72,7 @@ class Tree {
     let g: Int
     let h: Int
     
-    // MARK: Cached properties (apparently quite slow to create)
-    private lazy var xRange: Range<Int> = 0..<x
-    private lazy var aRange: Range<Int> = 0..<a
-    private lazy var bRange: Range<Int> = a..<(a+b)
-    private lazy var cRange: Range<Int> = (a+b)..<(a+b+c)
-    private lazy var dRange: Range<Int> = (a+b+c)..<(a+b+c+d)
-    private lazy var eRange: Range<Int> = (a+b+c+d)..<(a+b+c+d+e)
-    private lazy var fRange: Range<Int> = (a+b+c+d+e)..<(a+b+c+d+e+f)
-    private lazy var gRange: Range<Int> = (a+b+c+d+e+f)..<(a+b+c+d+e+f+g)
+    private var remainingBranches: [Tree.Branch] = []
     
     // MARK: Computed properties
     var eqG: Double {
@@ -196,19 +188,19 @@ extension Tree {
     }
 
     func pickABranch() -> Tree.Branch {
-        // TODO: keep count of how many have been handed out
-        // to make sure we respect our actual amount of a, b, c, etc
-        let number = Int.random(in: xRange)
-        switch number {
-        case aRange: return .a
-        case bRange: return .b
-        case cRange: return .c
-        case dRange: return .d
-        case eRange: return .e
-        case fRange: return .f
-        case gRange: return .g
-        default:     return .h
+        if remainingBranches.isEmpty {
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .a, count: a))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .b, count: b))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .c, count: c))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .d, count: d))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .e, count: e))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .f, count: f))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .g, count: g))
+            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .h, count: h))
+            remainingBranches.shuffle()
         }
+
+        return remainingBranches.removeFirst()
     }
 }
 
