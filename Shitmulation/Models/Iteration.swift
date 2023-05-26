@@ -48,19 +48,16 @@ class Iteration {
         self.people = benchmark("> Finished distributing in") {
             var people = [Person]()
             people.reserveCapacity(population)
-            for i in 0..<population {
-                if i % (population / 40) == 0 {
-                    log(".", newLine: false)
-                }
+            for _ in 0..<population {
+                people.append(Person(traitsCount: forest.count * 3))
+            }
 
-                let person = Person(traitsCount: forest.count * 3)
-                for tree in forest {
-                    // TODO: is this okay ?
-                    // speedier than allocating an array with all possible options and then shuffling it (~20s for 100million)
-                    // but we're not sure we'll have *perfectly* the amount of individual for each category
-                    person.addTraits(tree.pickABranch())
+            for (t, tree) in forest.enumerated() {
+                log(".", newLine: t == forest.count - 1)
+
+                for p in people {
+                    p.addTraits(tree.pickABranch())
                 }
-                people.append(person)
             }
             log("")
             return people
