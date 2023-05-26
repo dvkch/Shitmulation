@@ -53,9 +53,9 @@
 			isa = PBXGroup;
 			children = (
 				9741DD202A1C15F200D18178 /* Iteration.swift */,
+				9741DD242A1D6E5000D18178 /* Memory.swift */,
 				9741DD1B2A1B72C800D18178 /* People.swift */,
 				9741DD172A1B696A00D18178 /* Tree.swift */,
-				9741DD242A1D6E5000D18178 /* Memory.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";

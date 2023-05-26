@@ -46,15 +46,19 @@ class Iteration {
     private func generatePeople() {
         log("Populating \(population.string) people using \(numberOfTrees * 3) traits", newLine: false)
         self.people = benchmark("> Finished distributing in") {
+            
+            // create empty people
             var people = [Person]()
             people.reserveCapacity(population)
             for _ in 0..<population {
                 people.append(Person(traitsCount: forest.count * 3))
             }
 
+            // iterate on each tree
             for (t, tree) in forest.enumerated() {
                 log(".", newLine: t == forest.count - 1)
 
+                // add traits for this tree to all people
                 for p in 0..<people.count {
                     people[p].addTraits(tree.pickABranch())
                 }
