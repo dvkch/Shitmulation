@@ -199,8 +199,9 @@ extension Tree {
             remainingBranches.append(contentsOf: [Tree.Branch](repeating: .h, count: h))
             remainingBranches.shuffle()
         }
-
-        return remainingBranches.removeFirst()
+        
+        // removeFirst() is too expensive, and since the array is shuffled it shouldn't change anything
+        return remainingBranches.removeLast()
     }
 }
 

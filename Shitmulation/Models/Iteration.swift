@@ -55,8 +55,8 @@ class Iteration {
             for (t, tree) in forest.enumerated() {
                 log(".", newLine: t == forest.count - 1)
 
-                for p in people {
-                    p.addTraits(tree.pickABranch())
+                for p in 0..<people.count {
+                    people[p].addTraits(tree.pickABranch())
                 }
             }
             log("")
