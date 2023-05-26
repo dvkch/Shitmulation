@@ -59,7 +59,6 @@ class Iteration {
                     people[p].addTraits(tree.pickABranch())
                 }
             }
-            log("")
             return people
         }
         Memory.updatePeakMemoryUsage()
@@ -103,7 +102,7 @@ extension Iteration {
 
 // MARK: Export
 extension Array where Element == Iteration {
-    func csvTraits() -> String {
+    func csvUniqueCounts() -> String {
         guard let first else { return "" }
 
         var csvTraits = [String]()
@@ -113,7 +112,7 @@ extension Array where Element == Iteration {
         }
 
         for (i, iteration) in self.enumerated() {
-            csvTraits[0] += "\(i);"
+            csvTraits[0] += "Iteration \(i + 1);"
             for trait in 1...iteration.uniqCounts.count {
                 let count = iteration.uniqCounts[trait - 1]
                 csvTraits[trait] += "\(count);"
@@ -127,6 +126,6 @@ extension Array where Element == Iteration {
     }
     
     func csvScenarios() -> String {
-        return self.map(\.forest).csvExport()
+        return self.map(\.forest).csvScenarios()
     }
 }

@@ -8,11 +8,13 @@
 import Foundation
 
 func main() {
+    let startDate = Date()
     let numberOfTrees = 25
     let population = 100_000_000
     let iterationCount = 1
     let concurrency = 1
     
+    // Compute
     let results = parallelize(count: iterationCount, concurrency: concurrency) { i in
         let d = Date()
         let iteration = Iteration(
@@ -27,20 +29,52 @@ func main() {
         return (iteration, duration)
     }
     
+    // Write results
     let iterations = results.map(\.0)
-    let meanDuration = results.map(\.1).reduce(0, +) / Double(iterationCount)
-    print("Duration: \(meanDuration.durationString)") // 1.848s
-    print("Peak memory usage: \(Memory.peakMemoryUsage.sizeString)")
-    sleep(2)
+    let totalDuration = results.map(\.1).reduce(0, +)
+
+    let resultFolder = URL(fileURLWithPath: #file)
+        .deletingLastPathComponent().deletingLastPathComponent()
+        .appendingPathComponent("Results", isDirectory: true)
+        .appendingPathComponent(DateFormatter.iso.string(from: startDate), isDirectory: true)
+    try! FileManager.default.createDirectory(at: resultFolder, withIntermediateDirectories: true)
+
+    var report = [
+        "# Report",
+        "",
+        "Started: \(startDate)",
+        "",
+        "",
+        "Parameters:",
+        "",
+        "- numberOfTrees: \(numberOfTrees)",
+        "- traitsPerTree: \(Tree.Branch.a.traits.count)",
+        "- population: \(population)",
+        "- iterationCount: \(iterationCount)",
+        "- concurrency: \(concurrency)",
+        "",
+        "",
+        "Results:",
+        "",
+        "- saved to CSV files",
+        "- total duration: \(totalDuration.durationString)",
+        "- peak memory usage: \(Memory.peakMemoryUsage.sizeString)"
+    ].joined(separator: "\n")
     
-    print("-------")
-    print("RESULTS")
-    print("-------")
-    print("")
-    print(iterations.csvScenarios())
-    print("-------")
-    print("")
-    print(iterations.csvTraits())
+    try! report
+        .write(to: resultFolder.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
+    try! iterations.csvUniqueCounts()
+        .write(to: resultFolder.appendingPathComponent("uniques.csv"), atomically: true, encoding: .utf8)
+    try! iterations.csvScenarios()
+        .write(to: resultFolder.appendingPathComponent("scenarios.csv"), atomically: true, encoding: .utf8)
+    for (i, iteration) in iterations.enumerated() {
+        try! iteration.forest.csvTrees()
+            .write(to: resultFolder.appendingPathComponent("trees-\(i + 1).csv"), atomically: true, encoding: .utf8)
+    }
+
+    // Console update
+    print("All done and saved to \(resultFolder.path)")
+    resultFolder.openInFinder()
 }
 
 main()

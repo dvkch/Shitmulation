@@ -218,16 +218,27 @@ extension Tree {
     }
 }
 
+extension Array where Element == Tree {
+    func csvTrees() -> String {
+        var csv = [String]()
+        csv.append("Tree;scenario;a;b;c;d;e;f;g;h;")
+        for (i, t) in self.enumerated() {
+            csv.append("\(i + 1);\(t.scenario);\(t.a);\(t.b);\(t.c);\(t.d);\(t.e);\(t.f);\(t.g);\(t.h);")
+        }
+        return csv.joined(separator: "\n")
+    }
+}
+
 extension Array where Element == [Tree] {
-    func csvExport() -> String {
+    func csvScenarios() -> String {
         var csvScenarios = [String]()
-        csvScenarios.append("Scenario;")
+        csvScenarios.append("Tree;")
         for i in 1...16 {
             csvScenarios.append("\(i);")
         }
 
         for (i, iteration) in self.enumerated() {
-            csvScenarios[0] += "\(i);"
+            csvScenarios[0] += "Iteration \(i + 1);"
             for scenario in 1...16 {
                 let count = iteration.filter { $0.scenario == scenario }.count
                 csvScenarios[scenario] += "\(count);"

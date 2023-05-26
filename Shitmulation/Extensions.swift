@@ -88,3 +88,23 @@ func parallelize<T>(count: Int, concurrency: Int, closure: @escaping (Int) -> (T
     
     return results.sorted(by: { $0.key < $1.key }).map(\.value)
 }
+
+extension DateFormatter {
+    static var iso: DateFormatter {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd HHmmss"
+        df.timeZone = .current
+        df.locale = .init(identifier: "en_US_POSIX")
+        return df
+    }
+}
+
+extension URL {
+    func openInFinder() {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = [path]
+        try! process.run()
+        process.waitUntilExit()
+    }
+}
