@@ -9,21 +9,15 @@ import Foundation
 
 class Iteration {
     // MARK: Init
-    init(numberOfTrees: Int, population: Int, method: Method, verbose: Bool) {
+    init(numberOfTrees: Int, population: Int, verbose: Bool) {
         self.numberOfTrees = numberOfTrees
         self.population = population
-        self.method = method
         self.verbose = verbose
     }
     
     // MARK: Properties
     let numberOfTrees: Int
     let population: Int
-    enum Method {
-        case generatePeopleThenCount
-        case countWhileGenerating
-    }
-    let method: Method
     let verbose: Bool
     
     // MARK: Results
@@ -34,16 +28,8 @@ class Iteration {
     // MARK: Steps
     func run() {
         generateForest()
-        
-        // TODO: try and run BOTH (using same trees) and compare results
-        switch method {
-        case .generatePeopleThenCount:
-            generatePeople()
-            countUniquePeople()
-            
-        case .countWhileGenerating:
-            distributeAndCount()
-        }
+        generatePeople()
+        countUniquePeople()
     }
 
     private func generateForest() {
@@ -102,47 +88,6 @@ class Iteration {
                 log(" - unique at \(trait): \(count.string) (\(duration.durationString))")
                 if count == population {
                     break
-                }
-            }
-            return uniqueStats
-        }
-    }
-    
-    private func distributeAndCount() {
-        log("Distributing and counting unique over \(population.string) people")
-        self.uniqCounts = benchmark("> Finished distribute + count in") {
-            var people = [Person]()
-            people.reserveCapacity(population)
-            benchmark(" - created \(population.string) people:") {
-                for _ in 0..<population {
-                    people.append(Person(traitsCount: 10))
-                }
-            }
-            
-            var uniqueStats = [Int]()
-            for tree in forest {
-                benchmark(" - add new traits to \(people.count.string) people:") {
-                    for p in 0..<people.count {
-                        people[p].addTraits(tree.pickABranch())
-                    }
-                }
-
-                for _ in 0..<3 {
-                    let (count, duration) = benchmark {
-                        let count = people.countUniqueItems(upTo: uniqueStats.count + 1) + (uniqueStats.last ?? 0)
-                        uniqueStats.append(count)
-
-                        Memory.updatePeakMemoryUsage()
-                        if count > 0 {
-                            people = people.filter { $0.unique == false }
-                        }
-                        return count
-                    }
-                    log(" - unique at \(uniqueStats.count): \(count.string) (\(duration.durationString) // \(Memory.peakMemoryUsage.sizeString)")
-
-                    if count == population {
-                        break
-                    }
                 }
             }
             return uniqueStats

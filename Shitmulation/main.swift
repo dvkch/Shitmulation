@@ -18,7 +18,6 @@ func main() {
         let iteration = Iteration(
             numberOfTrees: numberOfTrees,
             population: population,
-            method: .countWhileGenerating,
             verbose: concurrency == 1
         )
         iteration.run()
