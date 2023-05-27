@@ -7,38 +7,61 @@
 
 import Foundation
 
-class Counter<T: Hashable> {
+class Counter {
 
     // MARK: Init
-    init(items: ContiguousArray<T>) {
-        for item in items {
-            counts[item, default: 0] += 1
-        }
-    }
-    
-    static func merge(_ counters: [Counter<T>]) -> Counter<T> {
-        let merged = Counter(items: [])
-        guard counters.count > 0 else { return merged }
+    init(fileURL: URL, traits: Int) {
+        self.fileURL = fileURL
+        self.lineLengthInBytes = Person.traitsSize
+        self.comparingMask = Person.mask(forTraitAt: traits, reverse: true)
 
-        let sorted = counters.sorted(by: { $0.counts.count > $1.counts.count })
-        merged.counts = sorted.first!.counts
-        sorted.dropFirst().forEach { otherCounter in
-            merged.merge(with: otherCounter)
+        autoreleasepool {
+            let (_, duration) = benchmark {
+                count()
+            }
+            print("- unique at trait \(traits): \(uniqueItems.string) (\(duration.durationString))")
         }
-        return merged
     }
     
     // MARK: Properties
-    private var counts: [T: Int] = [:]
+    let fileURL: URL
+    let lineLengthInBytes: Int
+    let comparingMask: Person.Traits
     
-    // MARK: Access
-    var uniqueItems: [T] {
-        return Array(counts.filter { $0.value == 1 }.keys)
-    }
+    // MARK: Internal properties
+    private(set) var uniqueItems: Int = 0
     
-    func merge(with counter: Counter<T>) {
-        counter.counts.forEach { key, value in
-            counts[key, default: 0] += value
+    // MARK: Counting
+    private func count() {
+        let file = try! FileHandle.init(forReadingFrom: fileURL)
+        
+        var prevPreviousLine: Person.Traits = (0, 0)
+        var previousLine: Person.Traits = (0, 0)
+
+        while true {
+            let lines = (try? file.read(upToCount: lineLengthInBytes * 1000)) ?? Data()
+            if lines.isEmpty {
+                if previousLine != prevPreviousLine {
+                    uniqueItems += 1
+                }
+                break
+            }
+            for l in 0..<(lines.count / lineLengthInBytes) {
+                let lineStart = lineLengthInBytes * l
+                let lineEnd   = lineStart + lineLengthInBytes
+                let currentLine = lines[lineStart..<lineEnd]
+                var currentTraits = currentLine.traits
+                currentTraits = (
+                    hi: currentTraits.hi & comparingMask.hi,
+                    lo: currentTraits.lo & comparingMask.lo
+                )
+
+                if currentTraits != previousLine && previousLine != prevPreviousLine {
+                    uniqueItems += 1
+                }
+                prevPreviousLine = previousLine
+                previousLine = currentTraits
+            }
         }
     }
 }

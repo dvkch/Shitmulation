@@ -13,6 +13,11 @@ class Iteration {
         self.numberOfTrees = numberOfTrees
         self.population = population
         self.strataCount = strata
+
+        let populationDir = FileManager.gitRepo.appendingPathComponent("Population", isDirectory: true)
+        try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
+        peopleFile = populationDir.appending(path: "population.bin")
+        FileManager.default.createFile(atPath: peopleFile.path, contents: Data())
     }
     
     // MARK: Properties
@@ -23,13 +28,14 @@ class Iteration {
     // MARK: Results
     private(set) var forest: [Tree] = []
     private var strataForest: [[Tree]] = []
-    private(set) var people: ContiguousArray<Person> = []
+    private let peopleFile: URL
     private(set) var uniqCounts: [Int: Int] = [:]
     
     // MARK: Steps
     func run() {
         generateForest()
         generatePeople()
+        sortPeople()
         countUniquePeople()
     }
 
@@ -46,32 +52,51 @@ class Iteration {
     }
     
     private func generatePeople() {
+        let populationDir = FileManager.gitRepo.appendingPathComponent("Population", isDirectory: true)
+        try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
+        
+        let fileWritingLock = NSLock()
+        
         log("Populating \(population.string) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
-        self.people = benchmark("> Finished distributing in") {
-            
-            // create empty people
-            var people = ContiguousArray<Person>()
-            people.reserveCapacity(population)
-            for _ in 0..<population {
-                people.append(Person())
-            }
-            
-            // iterate on each tree
-            for (t, subtrees) in strataForest.enumerated() {
-                log(".", newLine: t == forest.count - 1)
+        _ = benchmark("> Finished distributing in") {
+            parallelize(count: strataCount) { strata in
+                let forest = self.strataForest.map { $0[strata] }
+                let population = forest.first!.x
                 
-                // add traits for this tree to all people, parallelizing on using strata
-                subtrees.enumerated().forEachParallel { (i, subtree) in
-                    let startIndex = self.population / self.strataCount * i
-                    let endIndex   = self.population / self.strataCount * (i + 1)
-                    for p in (startIndex)..<endIndex {
-                        people[p].addTraits(subtree.pickABranch(), position: t * Tree.Branch.length)
+                // create empty people
+                var people = ContiguousArray<Person>()
+                people.reserveCapacity(population)
+                for _ in 0..<population {
+                    people.append(Person())
+                }
+
+                // iterate on each tree
+                for (t, tree) in forest.enumerated() {
+                    for p in people {
+                        p.addTraits(tree.pickABranch(), position: t * Tree.Branch.length)
                     }
                 }
+                
+                // write to file
+                fileWritingLock.lock()
+                try! people.writeToFile(url: self.peopleFile, emptyFirst: false)
+                fileWritingLock.unlock()
+
+                // small output
+                log(".", newLine: strata == self.strataCount - 1)
             }
-            return people
         }
+        
         Memory.updatePeakMemoryUsage()
+    }
+    
+    private func sortPeople() {
+        log("Sorting...")
+        benchmark("Sorted \(strataCount.string) files in") {
+            [peopleFile].forEachParallel { file in
+                try! file.binSortFile(lineLengthInBytes: Person.traitsSize)
+            }
+        }
     }
     
     private func countUniquePeople() {
@@ -85,41 +110,30 @@ class Iteration {
         
         let bisectionIndex = 4 + (Int(Darwin.log(Double(population)) / Darwin.log(Double(10)))) * 3
         
-        uniqCounts = [:]
-        uniqCounts[bisectionIndex] = people.countUniqueItems(upTo: bisectionIndex, uniquesAtPreviousTrait: 0, markUniques: true)
-        
-        var duplicatedAtBisection = ContiguousArray(people.filter { $0.unique == false })
-        var uniqueAtBisection = ContiguousArray(people.filter { $0.unique })
-        uniqueAtBisection.unmarkUnique()
-        self.people = []
-
         benchmark("> Finished counting in") {
-            // first loop
-            for trait in (1..<bisectionIndex) {
-                let count = uniqueAtBisection.countUniqueItems(
-                    upTo: trait, uniquesAtPreviousTrait: (uniqCounts[trait - 1] ?? 0), markUniques: true
-                )
-                uniqCounts[trait] = count
+            let traitsTotal = numberOfTrees * Tree.Branch.length
+            let traits = 1...traitsTotal
+            let lock = NSLock()
+            var shouldStopAfterTrait: Int = traits.max()!
+            traits.forEachParallel { trait in
+                if trait > shouldStopAfterTrait {
+                    return
+                }
 
-                uniqueAtBisection = uniqueAtBisection.filter { $0.unique == false }
+                let counter = Counter(fileURL: self.peopleFile, traits: trait)
 
-                if count == population {
-                    break
+                lock.lock()
+                self.uniqCounts[trait] = counter.uniqueItems
+                lock.unlock()
+
+                if counter.uniqueItems == self.population {
+                    lock.lock()
+                    shouldStopAfterTrait = trait
+                    lock.unlock()
                 }
             }
-
-            // second loop
-            for trait in (bisectionIndex + 1)...(numberOfTrees * Tree.Branch.length) {
-                let count = duplicatedAtBisection.countUniqueItems(
-                    upTo: trait, uniquesAtPreviousTrait: (uniqCounts[trait - 1] ?? 0), markUniques: true
-                )
-                uniqCounts[trait] = count
-
-                duplicatedAtBisection = duplicatedAtBisection.filter { $0.unique == false }
-                if count == population {
-                    break
-                }
-            }
+            
+            // TODO: reverse counts
         }
     }
 }

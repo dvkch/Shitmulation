@@ -11,11 +11,13 @@ final class Person {
     
     // MARK: Properties
     fileprivate(set) var unique: Bool = false
-    private(set) var traits: (hi: UInt64, lo: UInt64) = (0, 0)
-    fileprivate var traitsMask: (hi: UInt64, lo: UInt64) = (0xFFFFFFFF, 0xFFFFFFFF)
+    
+    typealias Traits = (hi: UInt64, lo: UInt64)
+    private(set) var traits: Traits = (0, 0)
+    fileprivate var traitsMask: Traits = (0xFFFFFFFF, 0xFFFFFFFF)
 
-    static var lineSize: Int {
-        return MemoryLayout<UInt64>.size * 2
+    static var traitsSize: Int {
+        return MemoryLayout<Traits>.size
     }
     
     func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
@@ -26,6 +28,22 @@ final class Person {
         }
         else {
             traits.hi = traits.hi | (UInt64(branch) &<< (position - positionsPer64))
+        }
+    }
+    
+    static func mask(forTraitAt trait: Int, reverse: Bool = false) -> Traits {
+        if reverse {
+            return (
+                hi: UInt64.masking(from: (64 - trait).bound(min: 0, max: 64), to: 64),
+                lo: UInt64.masking(from: (128 - trait).bound(min: 0, max: 64), to: 64)
+            )
+        }
+        else {
+            // TODO: validate
+            return (
+                hi: UInt64.masking(from: 0, to: (trait - 64).bound(min: 0, max: 64)),
+                lo: UInt64.masking(from: 0, to: trait.bound(min: 0, max: 64))
+            )
         }
     }
     
@@ -55,11 +73,11 @@ extension Person {
         
         for i in 0..<128 {
             let traitsMask = (
-                UInt64.masking(from: 0, to: i.bound(min: 0, max: 64)),
-                UInt64.masking(from: 0, to: (i - 64).bound(min: 0, max: 64))
+                hi: UInt64.masking(from: 0, to: (i - 64).bound(min: 0, max: 64)),
+                lo: UInt64.masking(from: 0, to: i.bound(min: 0, max: 64))
             )
-            print(traitsMask.0.bin, terminator: " ")
-            print(traitsMask.1.bin)
+            print(traitsMask.hi.bin, terminator: "")
+            print(traitsMask.lo.bin)
         }
     }
 }
@@ -86,58 +104,22 @@ extension Person: Hashable, Comparable {
 }
 
 // MARK: Couting unique
-extension ContiguousArray where Element == Person {
-    func countUniqueItems(upTo trait: Int, uniquesAtPreviousTrait: Int, markUniques: Bool) -> Int {
-        let (count, duration) = benchmark {
-            let traitsMask = (
-                UInt64.masking(from: 0, to: trait.bound(min: 0, max: 64)),
-                UInt64.masking(from: 0, to: (trait - 64).bound(min: 0, max: 64))
-            )
-            forEach { $0.traitsMask = traitsMask }
-            
-            let parallelLevel = 4
-            
-            let counters = parallelize(count: parallelLevel, concurrency: parallelLevel) { i in
-                let startOffset = self.count / parallelLevel * i
-                let endOffset   = (self.count / parallelLevel * (i + 1)).bound(min: 0, max: self.count)
-                let items = ContiguousArray(self[startOffset..<endOffset])
-                return Counter(items: items)
-            }
-            let counter = Counter.merge(counters)
-            
-            let uniquePeople = counter.uniqueItems
-            if markUniques {
-                uniquePeople.markUnique()
-            }
-            
-            Memory.updatePeakMemoryUsage()
-            
-            return uniquePeople.count + uniquesAtPreviousTrait
-        }
-        log(" - unique at \(trait): \(count.string) (\(duration.durationString))")
-        return count
-    }
-}
-
 extension Collection where Element == Person, Index == Int {
-    func markUnique() {
-        forEach { $0.unique = true }
-    }
-    
-    func unmarkUnique() {
-        forEach { $0.unique = false }
-    }
-    
-    func writeToFile(url: URL) throws {
-        FileManager.default.createFile(atPath: url.path, contents: Data())
-        let file = try FileHandle(forWritingTo: url)
+    func writeToFile(url: URL, emptyFirst: Bool) throws {
+        if emptyFirst || !FileManager.default.fileExists(atPath: url.path) {
+            FileManager.default.createFile(atPath: url.path, contents: Data())
+        }
+        
+        let file = try FileHandle(forUpdating: url)
+        try file.seekToEnd()
+
         defer { try? file.close() }
         
         let strideSize = 100_000 // it's faster to write big chunks at a time then small chunks very frequently
         try stride(from: 0, to: count, by: strideSize).forEach({ startIndex in
             let endIndex = (startIndex + strideSize).bound(min: 0, max: self.count)
             var data = Data()
-            data.reserveCapacity(strideSize * Person.lineSize)
+            data.reserveCapacity(strideSize * Person.traitsSize)
             
             self[startIndex..<endIndex].forEach { p in
                 p.write(into: &data)

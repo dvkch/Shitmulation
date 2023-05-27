@@ -34,6 +34,25 @@ extension UInt64 {
     }
 }
 
+extension Data {
+    var traits: Person.Traits {
+        assert(count == Person.traitsSize)
+        var hi: UInt64 = 0
+        var lo: UInt64 = 0
+        
+        self.withUnsafeBytes { buffer in
+            buffer.withMemoryRebound(to: UInt64.self) { bytes in
+                hi = bytes[0]
+                lo = bytes[1]
+            }
+        }
+        
+        hi = .init(bigEndian: hi)
+        lo = .init(bigEndian: lo)
+        return (hi: hi, lo: lo)
+    }
+}
+
 extension TimeInterval {
     var durationString: String {
         return String(format: "%.03lfs", self)
@@ -57,8 +76,8 @@ public extension Collection {
     }
 }
 
-extension Collection where Element == Int {
-    func sum() -> Int {
+extension Collection where Element: FixedWidthInteger {
+    func sum() -> Element {
         return reduce(0, +)
     }
 }
@@ -174,5 +193,15 @@ extension FileManager {
         return URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+    }
+}
+
+extension URL {
+    func binSortFile(lineLengthInBytes: Int) throws {
+        let process = Process()
+        process.executableURL = FileManager.gitRepo.appending(path: "Vendor/bsort")
+        process.arguments = ["-k", String(lineLengthInBytes), "-r", String(lineLengthInBytes), self.path]
+        try process.run()
+        process.waitUntilExit()
     }
 }
