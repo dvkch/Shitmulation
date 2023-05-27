@@ -92,7 +92,7 @@ func parallelize<T>(count: Int, concurrency: Int, closure: @escaping (Int) -> (T
 extension DateFormatter {
     static var iso: DateFormatter {
         let df = DateFormatter()
-        df.dateFormat = "yyyy-MM-dd HHmmss"
+        df.dateFormat = "yyyy-MM-dd HH'h'mm"
         df.timeZone = .current
         df.locale = .init(identifier: "en_US_POSIX")
         return df
@@ -106,5 +106,12 @@ extension URL {
         process.arguments = [path]
         try! process.run()
         process.waitUntilExit()
+    }
+}
+
+var verbose: Bool = true
+func log(_ message: String, newLine: Bool = true) {
+    if verbose {
+        print(message, terminator: newLine ? "\n" : "")
     }
 }

@@ -14,13 +14,14 @@ func main() {
     let iterationCount = 1
     let concurrency = 1
     
+    verbose = concurrency == 1
+    
     // Compute
     let results = parallelize(count: iterationCount, concurrency: concurrency) { i in
         let d = Date()
         let iteration = Iteration(
             numberOfTrees: numberOfTrees,
-            population: population,
-            verbose: concurrency == 1
+            population: population
         )
         iteration.run()
         print("Finished iteration \(i + 1)")
@@ -39,10 +40,10 @@ func main() {
         .appendingPathComponent(DateFormatter.iso.string(from: startDate), isDirectory: true)
     try! FileManager.default.createDirectory(at: resultFolder, withIntermediateDirectories: true)
 
-    var report = [
+    let report = [
         "# Report",
         "",
-        "Started: \(startDate)",
+        "Started: \(DateFormatter.iso.string(from: startDate))",
         "",
         "",
         "Parameters:",

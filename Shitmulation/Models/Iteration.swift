@@ -9,16 +9,14 @@ import Foundation
 
 class Iteration {
     // MARK: Init
-    init(numberOfTrees: Int, population: Int, verbose: Bool) {
+    init(numberOfTrees: Int, population: Int) {
         self.numberOfTrees = numberOfTrees
         self.population = population
-        self.verbose = verbose
     }
     
     // MARK: Properties
     let numberOfTrees: Int
     let population: Int
-    let verbose: Bool
     
     // MARK: Results
     private(set) var forest: [Tree] = []
@@ -95,14 +93,6 @@ class Iteration {
     }
 }
 
-// MARK: Logging
-extension Iteration {
-    private func log(_ message: String, newLine: Bool = true) {
-        if verbose {
-            print(message, terminator: newLine ? "\n" : "")
-        }
-    }
-}
 
 // MARK: Export
 extension Array where Element == Iteration {
