@@ -21,7 +21,7 @@ class Iteration {
     // MARK: Results
     private(set) var forest: [Tree] = []
     private(set) var people: [Person] = []
-    private(set) var uniqCounts: [Int] = []
+    private(set) var uniqCounts: [Int: Int] = [:]
     
     // MARK: Steps
     func run() {
@@ -66,33 +66,55 @@ class Iteration {
         Memory.updatePeakMemoryUsage()
     }
     
-    // TODO: try using a bisection
-
     private func countUniquePeople() {
-        log("Counting unique over \(population.string) people", newLine: false)
-        self.uniqCounts = benchmark("> Finished counting in") {
-            var uniqueStats = [Int]()
-            for trait in 1...(numberOfTrees * 3) {
-                let (count, duration) = benchmark {
-                    let count = people.countUniqueItems(upTo: trait) + (uniqueStats.last ?? 0)
-                    uniqueStats.append(count)
+        log("Counting unique over \(population.string) people")
+        
+        // Mean values for trait # where the pop is divided 50/50 unique
+        //  10k => 15
+        // 100k => 19
+        //   1m => 22
+        //  10m => 25
+        
+        let bisectionIndex = 4 + (Int(Darwin.log(Double(population)) / Darwin.log(Double(10)))) * 3
+        
+        uniqCounts = [:]
+        uniqCounts[bisectionIndex] = people.countUniqueItems(upTo: bisectionIndex, uniquesAtPreviousTrait: 0, markUniques: true)
+        
+        var duplicatedAtBisection = people.filter { $0.unique == false }
+        var uniqueAtBisection = people.filter { $0.unique }
+        uniqueAtBisection.unmarkUnique()
+        self.people = []
 
-                    Memory.updatePeakMemoryUsage()
-                    self.people = people.filter { $0.unique == false }
+        benchmark("> Finished counting in") {
+            // first loop
+            for trait in (1..<bisectionIndex) {
+                let count = uniqueAtBisection.countUniqueItems(
+                    upTo: trait, uniquesAtPreviousTrait: (uniqCounts[trait - 1] ?? 0), markUniques: true
+                )
+                uniqCounts[trait] = count
 
-                    return count
-                }
+                uniqueAtBisection = uniqueAtBisection.filter { $0.unique == false }
 
-                log(" - unique at \(trait): \(count.string) (\(duration.durationString))")
                 if count == population {
                     break
                 }
             }
-            return uniqueStats
+
+            // second loop
+            for trait in (bisectionIndex + 1)...(numberOfTrees * 3) {
+                let count = duplicatedAtBisection.countUniqueItems(
+                    upTo: trait, uniquesAtPreviousTrait: (uniqCounts[trait - 1] ?? 0), markUniques: true
+                )
+                uniqCounts[trait] = count
+
+                duplicatedAtBisection = duplicatedAtBisection.filter { $0.unique == false }
+                if count == population {
+                    break
+                }
+            }
         }
     }
 }
-
 
 // MARK: Export
 extension Array where Element == Iteration {
@@ -107,12 +129,9 @@ extension Array where Element == Iteration {
 
         for (i, iteration) in self.enumerated() {
             csvTraits[0] += "Iteration \(i + 1);"
-            for trait in 1...iteration.uniqCounts.count {
-                let count = iteration.uniqCounts[trait - 1]
+            for trait in 1...(first.numberOfTrees * 3) {
+                let count = iteration.uniqCounts[trait] ?? first.population
                 csvTraits[trait] += "\(count);"
-            }
-            for trait in iteration.uniqCounts.count..<(first.numberOfTrees * 3) {
-                csvTraits[trait + 1] += "\(first.population);"
             }
         }
         

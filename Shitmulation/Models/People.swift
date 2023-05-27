@@ -52,14 +52,30 @@ extension Person {
 
 // MARK: Couting unique
 extension Array where Element == Person {
-    func countUniqueItems(upTo trait: Int) -> Int {
-        Person.currentTrait = trait
+    func countUniqueItems(upTo trait: Int, uniquesAtPreviousTrait: Int, markUniques: Bool) -> Int {
+        let (count, duration) = benchmark {
+            Person.currentTrait = trait
+            
+            let set = NSCountedSet(array: self)
 
-        let set = NSCountedSet(array: self)
+            let uniquePeople = set.allObjects.filter { set.count(for: $0) == 1 } as! [Person]
+            if markUniques {
+                uniquePeople.markUnique()
+            }
 
-        let uniquePeople = set.allObjects.filter { set.count(for: $0) == 1 }
-        uniquePeople.forEach { ($0 as! Person).unique = true }
+            Memory.updatePeakMemoryUsage()
 
-        return uniquePeople.count
+            return uniquePeople.count + uniquesAtPreviousTrait
+        }
+        log(" - unique at \(trait): \(count.string) (\(duration.durationString))")
+        return count
+    }
+    
+    func markUnique() {
+        forEach { $0.unique = true }
+    }
+    
+    func unmarkUnique() {
+        forEach { $0.unique = false }
     }
 }
