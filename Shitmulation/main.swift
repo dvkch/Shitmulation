@@ -20,7 +20,7 @@ func main() {
     // Compute
     var results: [(Iteration, TimeInterval)] = []
     let lock = NSLock()
-    (0..<iterationCount).forEachParallel { i in
+    (0..<iterationCount).forEachParallel(concurrency: concurrency) { i in
         let (iteration, duration) = benchmark("Finished iteration \(i + 1) in") {
             let iteration = Iteration(
                 numberOfTrees: numberOfTrees,

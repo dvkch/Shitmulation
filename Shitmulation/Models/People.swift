@@ -69,12 +69,13 @@ extension ContiguousArray where Element == Person {
             let traitsMask = UInt64.masking(from: 0, to: trait)
             forEach { $0.traitsMask = traitsMask }
             
-            let parallelLevel = 6
+            let parallelLevel = 4
             
             let counters = parallelize(count: parallelLevel, concurrency: parallelLevel) { i in
                 let startOffset = self.count / parallelLevel * i
                 let endOffset   = (self.count / parallelLevel * (i + 1)).bound(min: 0, max: self.count)
-                return Counter(items: ContiguousArray(self[startOffset..<endOffset]))
+                let items = ContiguousArray(self[startOffset..<endOffset])
+                return Counter(items: items)
             }
             let counter = Counter.merge(counters)
             
