@@ -12,6 +12,7 @@
 		9741DD1C2A1B72C800D18178 /* People.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD1B2A1B72C800D18178 /* People.swift */; };
 		9741DD212A1C15F200D18178 /* Iteration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD202A1C15F200D18178 /* Iteration.swift */; };
 		9741DD252A1D6E5000D18178 /* Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD242A1D6E5000D18178 /* Memory.swift */; };
+		9745F79F2A218B01002EC557 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9745F79E2A218B01002EC557 /* Counter.swift */; };
 		9795A18E2A1AAACA00593A73 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9795A18D2A1AAACA00593A73 /* main.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,7 @@
 		9741DD202A1C15F200D18178 /* Iteration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Iteration.swift; sourceTree = "<group>"; };
 		9741DD232A1D2EB500D18178 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		9741DD242A1D6E5000D18178 /* Memory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memory.swift; sourceTree = "<group>"; };
+		9745F79E2A218B01002EC557 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		9795A18A2A1AAACA00593A73 /* Shitmulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Shitmulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		9795A18D2A1AAACA00593A73 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -52,6 +54,7 @@
 		9741DD222A1D2C4300D18178 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				9745F79E2A218B01002EC557 /* Counter.swift */,
 				9741DD202A1C15F200D18178 /* Iteration.swift */,
 				9741DD242A1D6E5000D18178 /* Memory.swift */,
 				9741DD1B2A1B72C800D18178 /* People.swift */,
@@ -170,6 +173,7 @@
 			files = (
 				9741DD252A1D6E5000D18178 /* Memory.swift in Sources */,
 				9741DD1C2A1B72C800D18178 /* People.swift in Sources */,
+				9745F79F2A218B01002EC557 /* Counter.swift in Sources */,
 				9795A18E2A1AAACA00593A73 /* main.swift in Sources */,
 				9741DD1A2A1B6A1B00D18178 /* Extensions.swift in Sources */,
 				9741DD212A1C15F200D18178 /* Iteration.swift in Sources */,

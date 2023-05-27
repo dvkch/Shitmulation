@@ -20,7 +20,7 @@ class Iteration {
     
     // MARK: Results
     private(set) var forest: [Tree] = []
-    private(set) var people: [Person] = []
+    private(set) var people: ContiguousArray<Person> = []
     private(set) var uniqCounts: [Int: Int] = [:]
     
     // MARK: Steps
@@ -46,7 +46,7 @@ class Iteration {
         self.people = benchmark("> Finished distributing in") {
             
             // create empty people
-            var people = [Person]()
+            var people = ContiguousArray<Person>()
             people.reserveCapacity(population)
             for _ in 0..<population {
                 people.append(Person(traitsCount: forest.count * 3))
@@ -80,8 +80,8 @@ class Iteration {
         uniqCounts = [:]
         uniqCounts[bisectionIndex] = people.countUniqueItems(upTo: bisectionIndex, uniquesAtPreviousTrait: 0, markUniques: true)
         
-        var duplicatedAtBisection = people.filter { $0.unique == false }
-        var uniqueAtBisection = people.filter { $0.unique }
+        var duplicatedAtBisection = ContiguousArray(people.filter { $0.unique == false })
+        var uniqueAtBisection = ContiguousArray(people.filter { $0.unique })
         uniqueAtBisection.unmarkUnique()
         self.people = []
 

@@ -7,19 +7,18 @@
 
 import Foundation
 
-@objcMembers
-final class Person: NSObject {
+final class Person {
     
     // MARK: Init
     init(traitsCount: Int) {
-        super.init()
         traits.reserveCapacity(traitsCount)
     }
     
     // MARK: Properties
     fileprivate(set) var unique: Bool = false
     private var traits: Data = Data()
-    
+    fileprivate var currentTrait: Int = 1
+
     func addTraits(_ branch: Tree.Branch) {
         traits.append(contentsOf: branch.traits.map(\.char))
     }
@@ -33,44 +32,43 @@ extension Person {
 }
 
 // MARK: Equality
-extension Person {
-    fileprivate static var currentTrait: Int = 1
+extension Person: Hashable {
     private func currentTraits() -> Data {
-        traits.subarray(maxCount: Person.currentTrait)
+        traits.subarray(maxCount: currentTrait)
     }
     
-    override func isEqual(_ object: Any?) -> Bool {
-        let t1 = currentTraits()
-        let t2 = (object as? Person)?.currentTraits()
-        return t1 == t2
+    static func ==(lhs: Person, rhs: Person) -> Bool {
+        return lhs.currentTraits() == rhs.currentTraits()
     }
     
-    override var hash: Int {
-        currentTraits().hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(currentTraits())
     }
 }
 
 // MARK: Couting unique
-extension Array where Element == Person {
+extension ContiguousArray where Element == Person {
     func countUniqueItems(upTo trait: Int, uniquesAtPreviousTrait: Int, markUniques: Bool) -> Int {
         let (count, duration) = benchmark {
-            Person.currentTrait = trait
+            forEach { $0.currentTrait = trait }
             
-            let set = NSCountedSet(array: self)
-
-            let uniquePeople = set.allObjects.filter { set.count(for: $0) == 1 } as! [Person]
+            let set = Counter(items: self)
+            
+            let uniquePeople = set.uniqueItems
             if markUniques {
                 uniquePeople.markUnique()
             }
-
+            
             Memory.updatePeakMemoryUsage()
-
+            
             return uniquePeople.count + uniquesAtPreviousTrait
         }
         log(" - unique at \(trait): \(count.string) (\(duration.durationString))")
         return count
     }
-    
+}
+
+extension Collection where Element == Person {
     func markUnique() {
         forEach { $0.unique = true }
     }
