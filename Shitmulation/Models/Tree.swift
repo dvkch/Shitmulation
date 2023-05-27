@@ -204,6 +204,7 @@ extension Tree {
     }
     
     private func generateBranches() {
+        var gen = L64X128PRNG()
         remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.a.rawValue, count: a))
         remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.b.rawValue, count: b))
         remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.c.rawValue, count: c))
@@ -212,7 +213,7 @@ extension Tree {
         remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.f.rawValue, count: f))
         remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.g.rawValue, count: g))
         remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.h.rawValue, count: h))
-        remainingBranches.shuffle()
+        remainingBranches.shuffle(using: &gen)
     }
 
     func pickABranch() -> UInt8 {

@@ -6,9 +6,9 @@
 
 | Kind                                     | Trees | Distributing | Sorting | Counting uniques | File size/memory usage |
 |------------------------------------------|-------|--------------|---------|------------------|------------------------|
-| In memory,   1 million , 21 trees (bit)  |  0.5s |    2.6s      |   N/A   |    0.8s total    |           96MB         |
-| In memory,  10 millions, 21 trees (bit)  |  0.5s |     26s      |   N/A   |     14s total    |          1.0GB         |
-| In memory, 100 millions, 21 trees (bit)  |  0.5s |    403s      |   N/A   |     xxx total    |         10.1GB         |
+| In memory,   1 million , 21 trees (bit)  |  0.5s |    0.2s      |   N/A   |    0.8s total    |           96MB         |
+| In memory,  10 millions, 21 trees (bit)  |  0.5s |    2.2s      |   N/A   |     14s total    |          1.0GB         |
+| In memory, 100 millions, 21 trees (bit)  |  0.5s |     29s      |   N/A   |     xxx total    |         10.1GB         |
 | File,       10 millions, 25 trees (char) |  0.5s |     51s      |    9s   |    ~2s / trait   |          1.2GB         |
 | File,      100 millions, 25 trees (char) |  0.5s |    510s      |   90s   |   ~20s / trait   |         12.1GB         |
 
