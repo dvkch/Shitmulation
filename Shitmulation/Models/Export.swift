@@ -9,10 +9,7 @@ import Foundation
 
 struct Export {
     static func exportFolder(for startDate: Date) -> URL {
-        let url = URL(fileURLWithPath: #file)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
+        let url = FileManager.gitRepo
             .appendingPathComponent("Results", isDirectory: true)
             .appendingPathComponent(DateFormatter.iso.string(from: startDate), isDirectory: true)
         try! FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
@@ -38,7 +35,7 @@ struct Export {
             "- numberOfTrees: \(first.numberOfTrees.string)",
             "- traitsPerTree: \(Tree.Branch.length)",
             "- population: \(first.population.string)",
-            "- strata: \(first.strata)",
+            "- strata: \(first.strataCount)",
             "- iterationCount: \(iterations.count.string)",
             "- concurrency: \(concurrency)",
             "",

@@ -12,13 +12,13 @@ class Iteration {
     init(numberOfTrees: Int, population: Int, strata: Int) {
         self.numberOfTrees = numberOfTrees
         self.population = population
-        self.strata = strata
+        self.strataCount = strata
     }
     
     // MARK: Properties
     let numberOfTrees: Int
     let population: Int
-    let strata: Int
+    let strataCount: Int
     
     // MARK: Results
     private(set) var forest: [Tree] = []
@@ -38,10 +38,10 @@ class Iteration {
         forest = benchmark("> Finished in") {
             (0..<numberOfTrees).map { i in
                 log(".", newLine: i == numberOfTrees - 1)
-                return Tree.generateValidTree(population: population, strata: strata)
+                return Tree.generateValidTree(population: population)
             }
         }
-        strataForest = forest.map { $0.strataSubtrees(count: strata) }
+        strataForest = forest.map { $0.strataSubtrees(count: strataCount) }
         Memory.updatePeakMemoryUsage()
     }
     
@@ -62,8 +62,8 @@ class Iteration {
                 
                 // add traits for this tree to all people, parallelizing on using strata
                 subtrees.enumerated().forEachParallel { (i, subtree) in
-                    let startIndex = self.population / self.strata * i
-                    let endIndex   = self.population / self.strata * (i + 1)
+                    let startIndex = self.population / self.strataCount * i
+                    let endIndex   = self.population / self.strataCount * (i + 1)
                     for p in (startIndex)..<endIndex {
                         people[p].addTraits(subtree.pickABranch(), position: t * Tree.Branch.length)
                     }

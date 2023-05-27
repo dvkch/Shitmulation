@@ -177,3 +177,11 @@ extension BinaryInteger {
         return padding + binaryString
     }
 }
+
+extension FileManager {
+    static var gitRepo: URL {
+        return URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
+}

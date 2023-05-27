@@ -124,7 +124,7 @@ class Tree {
 
 // MARK: Validation
 extension Tree {
-    static func generateValidTree(population: Int, strata: Int) -> Tree {
+    static func generateValidTree(population: Int) -> Tree {
         let indepA_B  = Double.random(in: 0...1) > 0.4
         let indepC_B  = Double.random(in: 0...1) > 0.7
         let indepC_A  = Double.random(in: 0...1) > 0.7
