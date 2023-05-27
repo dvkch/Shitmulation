@@ -9,14 +9,16 @@ import Foundation
 
 class Iteration {
     // MARK: Init
-    init(numberOfTrees: Int, population: Int) {
+    init(numberOfTrees: Int, population: Int, strata: Int) {
         self.numberOfTrees = numberOfTrees
         self.population = population
+        self.strata = strata
     }
     
     // MARK: Properties
     let numberOfTrees: Int
     let population: Int
+    let strata: Int
     
     // MARK: Results
     private(set) var forest: [Tree] = []
@@ -35,7 +37,7 @@ class Iteration {
         self.forest = benchmark("> Finished in") {
             (0..<numberOfTrees).map { i in
                 log(".", newLine: i == numberOfTrees - 1)
-                return Tree.generateValidTree(population: population)
+                return Tree.generateValidTree(population: population, strata: strata)
             }
         }
         Memory.updatePeakMemoryUsage()

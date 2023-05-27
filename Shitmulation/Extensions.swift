@@ -50,6 +50,12 @@ public extension Collection {
     }
 }
 
+extension Collection where Element == Int {
+    func sum() -> Int {
+        return reduce(0, +)
+    }
+}
+
 func benchmark<T>(_ message: String, closure: () -> T) -> T {
     let d = Date()
     let result = closure()
@@ -123,5 +129,32 @@ extension UInt64 {
             value += 1 << (64 - i)
         }
         return value
+    }
+}
+
+extension Collection {
+    func forEachParallel(_ closure: @escaping (Element) -> ()) {
+        let queue = OperationQueue()
+        queue.qualityOfService = .userInteractive
+        queue.maxConcurrentOperationCount = 4 // TODO: adjust number
+        
+        let group = DispatchGroup()
+
+        for item in self {
+            group.enter()
+            queue.addOperation {
+                closure(item)
+                group.leave()
+            }
+        }
+        group.wait()
+    }
+}
+
+extension Int {
+    func bound(min: Int, max: Int) -> Int {
+        if self > max { return max }
+        if self < min { return min }
+        return self
     }
 }

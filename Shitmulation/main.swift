@@ -11,6 +11,7 @@ func main() {
     let startDate = Date()
     let numberOfTrees = 21
     let population = 100_000_000
+    let strata = (population / 10_000_000).bound(min: 1, max: 100)
     let iterationCount = 1
     let concurrency = 1
     
@@ -21,7 +22,8 @@ func main() {
         let d = Date()
         let iteration = Iteration(
             numberOfTrees: numberOfTrees,
-            population: population
+            population: population,
+            strata: strata
         )
         iteration.run()
         print("Finished iteration \(i + 1)")
@@ -51,6 +53,7 @@ func main() {
         "- numberOfTrees: \(numberOfTrees)",
         "- traitsPerTree: \(Tree.Branch.length)",
         "- population: \(population)",
+        "- strata: \(strata)",
         "- iterationCount: \(iterationCount)",
         "- concurrency: \(concurrency)",
         "",
