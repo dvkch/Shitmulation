@@ -189,14 +189,14 @@ extension Tree {
 // MARK: Populating
 extension Tree {
     enum Branch: UInt8 {
-        case a = 0b100
-        case b = 0b010
-        case c = 0b110
-        case d = 0b101
-        case e = 0b111
-        case f = 0b011
-        case g = 0b001
-        case h = 0b000
+        case a = 0b001 // 0b100 we're writing right to left in our final file, so let's reverse what we add to it
+        case b = 0b010 // 0b010
+        case c = 0b011 // 0b110
+        case d = 0b101 // 0b101
+        case e = 0b111 // 0b111
+        case f = 0b110 // 0b011
+        case g = 0b100 // 0b001
+        case h = 0b000 // 0b000
 
         static var length: Int {
             return 3

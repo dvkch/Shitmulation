@@ -11,28 +11,28 @@ final class Person {
     
     // MARK: Properties
     fileprivate(set) var unique: Bool = false
-    private(set) var traits: (UInt64, UInt64) = (0, 0)
-    fileprivate var traitsMask: (UInt64, UInt64) = (0xFFFFFFFF, 0xFFFFFFFF)
+    private(set) var traits: (hi: UInt64, lo: UInt64) = (0, 0)
+    fileprivate var traitsMask: (hi: UInt64, lo: UInt64) = (0xFFFFFFFF, 0xFFFFFFFF)
 
     static var lineSize: Int {
         return MemoryLayout<UInt64>.size * 2
     }
     
     func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
-        // TODO: rewrite in a single C function maybe
+        // TODO: rewrite in a single C function maybe?
         let positionsPer64 = 64 - (64 % Tree.Branch.length)
         if position < positionsPer64 {
-            traits.0 = traits.0 | (UInt64(branch) &<< (64 - Tree.Branch.length - position))
+            traits.lo = traits.lo | (UInt64(branch) &<< (position))
         }
         else {
-            traits.1 = traits.1 | (UInt64(branch) &<< (64 - Tree.Branch.length - (position - positionsPer64)))
+            traits.hi = traits.hi | (UInt64(branch) &<< (position - positionsPer64))
         }
     }
     
     func write(into data: inout Data) {
         // faster than a simple '+'
-        data.append(traits.0.data)
-        data.append(traits.1.data)
+        data.append(traits.hi.data)
+        data.append(traits.lo.data)
     }
 }
 
@@ -43,19 +43,11 @@ extension Person {
         
         for i in 0..<42 {
             p.addTraits(Tree.Branch.e.rawValue, position: i * 3)
-            /*
-            print(p.traits.0.bin, terminator: " ")
-            print(p.traits.1.bin)
-             */
             
             var data = Data()
             p.write(into: &data)
-            data.withUnsafeBytes { bytes in
-                bytes.withMemoryRebound(to: UInt8.self) { buffer in
-                    buffer.enumerated().forEach { (i, byte) in
-                        print(byte.bin, terminator: i == data.count - 1 ? "\n" : "")
-                    }
-                }
+            data.enumerated().forEach { i, byte in
+                print(byte.bin, terminator: i == data.count - 1 ? "\n" : "")
             }
         }
         

@@ -136,7 +136,7 @@ extension UInt64 {
     static func masking(from: Int, to: Int) -> UInt64 {
         var value: UInt64 = 0
         for i in from...to {
-            value += 1 << (64 - i)
+            value += 1 << i
         }
         return value
     }
