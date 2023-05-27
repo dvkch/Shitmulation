@@ -63,9 +63,12 @@ func benchmark<T>(_ message: String, closure: () -> T) -> T {
     return result
 }
 
-func benchmark<T>(_ closure: () -> T) -> (T, TimeInterval) {
+func benchmark<T>(_ message: String? = nil, _ closure: () -> T) -> (T, TimeInterval) {
     let d = Date()
     let result = closure()
+    if let message {
+        print(message, Date().timeIntervalSince(d).durationString)
+    }
     return (result, Date().timeIntervalSince(d))
 }
 
@@ -133,10 +136,10 @@ extension UInt64 {
 }
 
 extension Sequence {
-    func forEachParallel(_ closure: @escaping (Element) -> ()) {
+    func forEachParallel(concurrency: Int = 4, _ closure: @escaping (Element) -> ()) {
         let queue = OperationQueue()
         queue.qualityOfService = .userInteractive
-        queue.maxConcurrentOperationCount = 4 // TODO: adjust number
+        queue.maxConcurrentOperationCount = concurrency
         
         let group = DispatchGroup()
 
