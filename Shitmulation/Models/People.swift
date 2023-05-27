@@ -14,6 +14,10 @@ final class Person {
     private(set) var traits: (UInt64, UInt64) = (0, 0)
     fileprivate var traitsMask: (UInt64, UInt64) = (0xFFFFFFFF, 0xFFFFFFFF)
 
+    static var lineSize: Int {
+        return MemoryLayout<UInt64>.size * 2
+    }
+    
     func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
         // TODO: rewrite in a single C function maybe
         let positionsPer64 = 64 - (64 % Tree.Branch.length)
@@ -24,17 +28,35 @@ final class Person {
             traits.1 = traits.1 | (UInt64(branch) &<< (64 - Tree.Branch.length - (position - positionsPer64)))
         }
     }
+    
+    func write(into data: inout Data) {
+        // faster than a simple '+'
+        data.append(traits.0.data)
+        data.append(traits.1.data)
+    }
 }
 
 extension Person {
     // TODO: add actual tests ?
     static func test() {
         let p = Person()
-
+        
         for i in 0..<42 {
             p.addTraits(Tree.Branch.e.rawValue, position: i * 3)
-            print(String(p.traits.0, radix: 2), terminator: " ")
-            print(String(p.traits.1, radix: 2))
+            /*
+            print(p.traits.0.bin, terminator: " ")
+            print(p.traits.1.bin)
+             */
+            
+            var data = Data()
+            p.write(into: &data)
+            data.withUnsafeBytes { bytes in
+                bytes.withMemoryRebound(to: UInt8.self) { buffer in
+                    buffer.enumerated().forEach { (i, byte) in
+                        print(byte.bin, terminator: i == data.count - 1 ? "\n" : "")
+                    }
+                }
+            }
         }
         
         print("-------")
@@ -44,8 +66,8 @@ extension Person {
                 UInt64.masking(from: 0, to: i.bound(min: 0, max: 64)),
                 UInt64.masking(from: 0, to: (i - 64).bound(min: 0, max: 64))
             )
-            print(String(traitsMask.0, radix: 2), terminator: " ")
-            print(String(traitsMask.1, radix: 2))
+            print(traitsMask.0.bin, terminator: " ")
+            print(traitsMask.1.bin)
         }
     }
 }
@@ -105,12 +127,30 @@ extension ContiguousArray where Element == Person {
     }
 }
 
-extension Collection where Element == Person {
+extension Collection where Element == Person, Index == Int {
     func markUnique() {
         forEach { $0.unique = true }
     }
     
     func unmarkUnique() {
         forEach { $0.unique = false }
+    }
+    
+    func writeToFile(url: URL) throws {
+        FileManager.default.createFile(atPath: url.path, contents: Data())
+        let file = try FileHandle(forWritingTo: url)
+        defer { try? file.close() }
+        
+        let strideSize = 100_000 // it's faster to write big chunks at a time then small chunks very frequently
+        try stride(from: 0, to: count, by: strideSize).forEach({ startIndex in
+            let endIndex = (startIndex + strideSize).bound(min: 0, max: self.count)
+            var data = Data()
+            data.reserveCapacity(strideSize * Person.lineSize)
+            
+            self[startIndex..<endIndex].forEach { p in
+                p.write(into: &data)
+            }
+            try file.write(contentsOf: data)
+        })
     }
 }

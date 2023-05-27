@@ -25,6 +25,13 @@ extension UInt64 {
         formatter.includesUnit = true
         return formatter.string(fromByteCount: Int64(self))
     }
+    
+    var data: Data {
+        // using big endian to put back everything in order, trait1 being the first
+        // bit appearing. identical to data.reverse(), but way faster
+        var int = self.bigEndian
+        return Data(bytes: &int, count: MemoryLayout<Self>.size)
+    }
 }
 
 extension TimeInterval {
@@ -159,5 +166,14 @@ extension Int {
         if self > max { return max }
         if self < min { return min }
         return self
+    }
+}
+
+extension BinaryInteger {
+    var bin: String {
+        let length = MemoryLayout<Self>.size * 8
+        let binaryString = String(self, radix: 2)
+        let padding = [String](repeating: "0", count: length - binaryString.count).joined()
+        return padding + binaryString
     }
 }
