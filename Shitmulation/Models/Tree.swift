@@ -9,7 +9,7 @@ import Foundation
 
 class Tree {
     // MARK: Init
-    init(x: Int, indepA_B: Bool, indepC_B: Bool, indepC_A: Bool, indepC_AB: Bool, strata: Int) {
+    init(x: Int, indepA_B: Bool, indepC_B: Bool, indepC_A: Bool, indepC_AB: Bool) {
         assert(x % 4 == 0)
         
         self.x = x
@@ -17,7 +17,6 @@ class Tree {
         self.indepC_B = indepC_B
         self.indepC_A = indepC_A
         self.indepC_AB = indepC_AB
-        self.strata = strata
         
         if indepA_B && indepC_B && indepC_A && indepC_AB {
             // TODO: check this up again later
@@ -56,26 +55,23 @@ class Tree {
         }
     }
     
-    private init(
-        strataX: Int, indepA_B: Bool, indepC_B: Bool, indepC_A: Bool, indepC_AB: Bool,
-        a: Int, b: Int, c: Int, d: Int, e: Int, f: Int, g: Int
-    ) {
-        self.x = strataX
-        self.indepA_B = indepA_B
-        self.indepC_B = indepC_B
-        self.indepC_A = indepC_A
-        self.indepC_AB = indepC_AB
+    init(multiplying tree: Tree, by amount: Int) {
+        self.x = tree.x * amount
+        self.indepA_B  = tree.indepA_B
+        self.indepC_B  = tree.indepC_B
+        self.indepC_A  = tree.indepC_A
+        self.indepC_AB = tree.indepC_AB
 
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.e = e
-        self.f = f
-        self.g = g
-        self.h = x - a - b - c - d - e - f - g
-
-        self.strata = 1
+        self.a = tree.a * amount
+        self.b = tree.b * amount
+        self.c = tree.c * amount
+        self.d = tree.d * amount
+        self.e = tree.e * amount
+        self.f = tree.f * amount
+        self.g = tree.g * amount
+        self.h = tree.h * amount
+        
+        assert(isValid)
     }
     
     // MARK: Properties
@@ -94,8 +90,6 @@ class Tree {
     let f: Int
     let g: Int
     let h: Int
-    
-    let strata: Int
     
     private var remainingBranches: [Tree.Branch.RawValue] = []
     
@@ -130,15 +124,16 @@ class Tree {
 // MARK: Validation
 extension Tree {
     static func generateValidTree(population: Int, strata: Int) -> Tree {
+        assert(population % strata == 0)
         let indepA_B  = Double.random(in: 0...1) > 0.4
         let indepC_B  = Double.random(in: 0...1) > 0.7
         let indepC_A  = Double.random(in: 0...1) > 0.7
         let indepC_AB = Double.random(in: 0...1) > 0.4
 
-        var tree = Tree(x: population, indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB, strata: strata)
+        var tree = Tree(x: population / strata, indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB)
         
         while (!tree.isValid) {
-            tree = Tree(x: population, indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB, strata: strata)
+            tree = Tree(x: population / strata, indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB)
         }
         return tree
     }
@@ -209,29 +204,15 @@ extension Tree {
     }
     
     private func generateBranches() {
-        if strata == 1 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.a.rawValue, count: a))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.b.rawValue, count: b))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.c.rawValue, count: c))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.d.rawValue, count: d))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.e.rawValue, count: e))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.f.rawValue, count: f))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.g.rawValue, count: g))
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.h.rawValue, count: h))
-            remainingBranches.shuffle()
-            return
-        }
-
-        // TODO: don't generate them all and use them in order instead ?
-        let subtrees = strataSubtrees(count: strata)
-        assert(subtrees.filter(\.isValid).count == subtrees.count)
-        
-        subtrees.forEachParallel { subtree in
-            subtree.generateBranches()
-        }
-        subtrees.forEach { subtree in
-            remainingBranches += subtree.remainingBranches
-        }
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.a.rawValue, count: a))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.b.rawValue, count: b))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.c.rawValue, count: c))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.d.rawValue, count: d))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.e.rawValue, count: e))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.f.rawValue, count: f))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.g.rawValue, count: g))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.h.rawValue, count: h))
+        remainingBranches.shuffle()
     }
 
     func pickABranch() -> UInt8 {
@@ -241,41 +222,6 @@ extension Tree {
         
         // removeFirst() is too expensive, and since the array is shuffled it shouldn't change anything
         return remainingBranches.removeLast()
-    }
-}
-
-// MARK: Strata
-extension Tree {
-    func strataSubtrees(count: Int) -> [Tree] {
-        let subpopulation = x / count
-        var trees = [Tree]()
-        for _ in 0..<(count - 1) {
-            let subtree = Tree(
-                strataX: subpopulation, indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB,
-                a: Int((Double(a) / Double(count)).rounded(.toNearestOrAwayFromZero)),
-                b: Int((Double(b) / Double(count)).rounded(.toNearestOrAwayFromZero)),
-                c: Int((Double(c) / Double(count)).rounded(.toNearestOrAwayFromZero)),
-                d: Int((Double(d) / Double(count)).rounded(.toNearestOrAwayFromZero)),
-                e: Int((Double(e) / Double(count)).rounded(.toNearestOrAwayFromZero)),
-                f: Int((Double(f) / Double(count)).rounded(.toNearestOrAwayFromZero)),
-                g: Int((Double(g) / Double(count)).rounded(.toNearestOrAwayFromZero))
-            )
-            trees.append(subtree)
-        }
-        
-        let lastTree = Tree(
-            strataX: x - trees.map(\.x).sum(),
-            indepA_B: indepA_B, indepC_B: indepC_B, indepC_A: indepC_A, indepC_AB: indepC_AB,
-            a: a - trees.map(\.a).sum(),
-            b: b - trees.map(\.b).sum(),
-            c: c - trees.map(\.c).sum(),
-            d: d - trees.map(\.d).sum(),
-            e: e - trees.map(\.e).sum(),
-            f: f - trees.map(\.f).sum(),
-            g: g - trees.map(\.g).sum()
-        )
-        trees.append(lastTree)
-        return trees
     }
 }
 

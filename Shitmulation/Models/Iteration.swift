@@ -22,6 +22,7 @@ class Iteration {
     
     // MARK: Results
     private(set) var forest: [Tree] = []
+    private var strataForest: [Tree] = []
     private(set) var people: ContiguousArray<Person> = []
     private(set) var uniqCounts: [Int: Int] = [:]
     
@@ -34,12 +35,13 @@ class Iteration {
 
     private func generateForest() {
         log("Creating \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
-        self.forest = benchmark("> Finished in") {
+        strataForest = benchmark("> Finished in") {
             (0..<numberOfTrees).map { i in
                 log(".", newLine: i == numberOfTrees - 1)
                 return Tree.generateValidTree(population: population, strata: strata)
             }
         }
+        forest = strataForest.map { Tree(multiplying: $0, by: strata) }
         Memory.updatePeakMemoryUsage()
     }
     
@@ -55,12 +57,17 @@ class Iteration {
             }
             
             // iterate on each tree
-            for (t, tree) in forest.enumerated() {
+            for (t, tree) in strataForest.enumerated() {
                 log(".", newLine: t == forest.count - 1)
                 
-                // add traits for this tree to all people
-                for p in people {
-                    p.addTraits(tree.pickABranch(), position: t * Tree.Branch.length)
+                // add traits for this tree to all people, parallelizing on using strata
+                (0..<strata).forEachParallel { i in
+                    let treeCopy = Tree.init(multiplying: tree, by: 1)
+                    let startIndex = self.population / self.strata * i
+                    let endIndex   = self.population / self.strata * (i + 1)
+                    for p in (startIndex)..<endIndex {
+                        people[p].addTraits(treeCopy.pickABranch(), position: t * Tree.Branch.length)
+                    }
                 }
             }
             return people
