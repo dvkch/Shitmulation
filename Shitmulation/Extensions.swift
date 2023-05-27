@@ -79,28 +79,19 @@ func benchmark<T>(_ message: String? = nil, _ closure: () -> T) -> (T, TimeInter
     return (result, Date().timeIntervalSince(d))
 }
 
-func parallelize<T>(count: Int, concurrency: Int, closure: @escaping (Int) -> (T)) -> [T] {
-    let queue = OperationQueue()
-    queue.qualityOfService = .userInitiated
-    queue.maxConcurrentOperationCount = concurrency
-    
-    let group = DispatchGroup()
+func parallelize<T>(count: Int, closure: @escaping (Int) -> (T)) -> [T] {
     let lock = NSLock()
     var results = [Int: T]()
 
-    for i in 0..<count {
-        group.enter()
-        queue.addOperation {
-            let result = closure(i)
-
-            lock.lock()
-            results[i] = result
-            lock.unlock()
-
-            group.leave()
+    (0..<count).forEachParallel { i in
+        let result = autoreleasepool {
+            closure(i)
         }
+
+        lock.lock()
+        results[i] = result
+        lock.unlock()
     }
-    group.wait()
     
     return results.sorted(by: { $0.key < $1.key }).map(\.value)
 }
@@ -143,10 +134,10 @@ extension UInt64 {
 }
 
 extension Sequence {
-    func forEachParallel(concurrency: Int = 4, _ closure: @escaping (Element) -> ()) {
+    func forEachParallel(_ closure: @escaping (Element) -> ()) {
         let queue = OperationQueue()
         queue.qualityOfService = .userInteractive
-        queue.maxConcurrentOperationCount = concurrency
+        queue.maxConcurrentOperationCount = System.performanceCores - 1
         
         let group = DispatchGroup()
 

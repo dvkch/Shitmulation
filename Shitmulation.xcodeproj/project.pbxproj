@@ -14,6 +14,7 @@
 		9741DD252A1D6E5000D18178 /* Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD242A1D6E5000D18178 /* Memory.swift */; };
 		9745F79F2A218B01002EC557 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9745F79E2A218B01002EC557 /* Counter.swift */; };
 		9795A18E2A1AAACA00593A73 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9795A18D2A1AAACA00593A73 /* main.swift */; };
+		97DDBD2A2A22AD3700A42A5E /* System.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97DDBD292A22AD3700A42A5E /* System.swift */; };
 		97F6D4A52A21A9FB00F2CCAC /* PRNG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F6D4A42A21A9FB00F2CCAC /* PRNG.swift */; };
 		97F6D4A72A21BAAB00F2CCAC /* Export.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F6D4A62A21BAAB00F2CCAC /* Export.swift */; };
 /* End PBXBuildFile section */
@@ -40,6 +41,7 @@
 		9745F79E2A218B01002EC557 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		9795A18A2A1AAACA00593A73 /* Shitmulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Shitmulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		9795A18D2A1AAACA00593A73 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		97DDBD292A22AD3700A42A5E /* System.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = System.swift; sourceTree = "<group>"; };
 		97F6D4A42A21A9FB00F2CCAC /* PRNG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRNG.swift; sourceTree = "<group>"; };
 		97F6D4A62A21BAAB00F2CCAC /* Export.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -64,6 +66,7 @@
 				9741DD242A1D6E5000D18178 /* Memory.swift */,
 				9741DD1B2A1B72C800D18178 /* People.swift */,
 				97F6D4A42A21A9FB00F2CCAC /* PRNG.swift */,
+				97DDBD292A22AD3700A42A5E /* System.swift */,
 				9741DD172A1B696A00D18178 /* Tree.swift */,
 			);
 			path = Models;
@@ -177,6 +180,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97DDBD2A2A22AD3700A42A5E /* System.swift in Sources */,
 				9741DD252A1D6E5000D18178 /* Memory.swift in Sources */,
 				9741DD1C2A1B72C800D18178 /* People.swift in Sources */,
 				9745F79F2A218B01002EC557 /* Counter.swift in Sources */,
