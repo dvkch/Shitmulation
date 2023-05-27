@@ -8,20 +8,21 @@
 import Foundation
 
 func main() {
+    // PARAMS
     let startDate = Date()
     let numberOfTrees = 42
     let population = 100_000_000
     let strata = (population / 10_000_000).bound(min: 1, max: 100)
     let iterationCount = 1
-    let concurrency = 1
     
-    verbose = concurrency == 1
+    verbose = true
     
-    // Compute
+    // COMPUTE
+    // don't parallelize this loop, it's better to properly parallelize
+    // what it does instead, to prevent huge memory usage)
     var results: [(Iteration, TimeInterval)] = []
-    let lock = NSLock()
-    (0..<iterationCount).forEachParallel(concurrency: concurrency) { i in
-        let (iteration, duration) = benchmark("Finished iteration \(i + 1) in") {
+    for iterationIndex in 0..<iterationCount {
+        let (iteration, duration) = benchmark("Finished iteration \(iterationIndex + 1) in") {
             let iteration = Iteration(
                 numberOfTrees: numberOfTrees,
                 population: population,
@@ -31,14 +32,11 @@ func main() {
             return iteration
         }
         
-        lock.lock()
         results.append((iteration, duration))
-        lock.unlock()
-        
-        Export.saveResult(results, for: startDate, concurrency: concurrency)
+        Export.saveResult(results, for: startDate, concurrency: 1)
     }
     
-    // Console update
+    // OUTPUT
     let url = Export.exportFolder(for: startDate)
     print("All done and saved to \(url.path)")
     url.openInFinder()
