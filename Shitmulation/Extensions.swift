@@ -132,7 +132,7 @@ extension UInt64 {
     }
 }
 
-extension Collection {
+extension Sequence {
     func forEachParallel(_ closure: @escaping (Element) -> ()) {
         let queue = OperationQueue()
         queue.qualityOfService = .userInteractive
