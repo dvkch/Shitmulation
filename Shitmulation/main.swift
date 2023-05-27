@@ -9,7 +9,7 @@ import Foundation
 
 func main() {
     let startDate = Date()
-    let numberOfTrees = 21
+    let numberOfTrees = 42
     let population = 100_000_000
     let strata = (population / 10_000_000).bound(min: 1, max: 100)
     let iterationCount = 1

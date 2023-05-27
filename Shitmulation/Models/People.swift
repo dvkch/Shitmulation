@@ -11,12 +11,18 @@ final class Person {
     
     // MARK: Properties
     fileprivate(set) var unique: Bool = false
-    private(set) var traits: UInt64 = 0 // TODO: switch to bigger later on
-    fileprivate var traitsMask: UInt64 = 0xFFFFFFFF
+    private(set) var traits: (UInt64, UInt64) = (0, 0)
+    fileprivate var traitsMask: (UInt64, UInt64) = (0xFFFFFFFF, 0xFFFFFFFF)
 
     func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
         // TODO: rewrite in a single C function maybe
-        traits |= UInt64(branch) << (64 - Tree.Branch.length - position)
+        let positionsPer64 = 64 - (64 % Tree.Branch.length)
+        if position < positionsPer64 {
+            traits.0 = traits.0 | (UInt64(branch) &<< (64 - Tree.Branch.length - position))
+        }
+        else {
+            traits.1 = traits.1 | (UInt64(branch) &<< (64 - Tree.Branch.length - (position - positionsPer64)))
+        }
     }
 }
 
@@ -25,28 +31,29 @@ extension Person {
     static func test() {
         let p = Person()
 
-        p.addTraits(Tree.Branch.e.rawValue, position: 0)
-        print(String(p.traits, radix: 2))
-
-        p.addTraits(Tree.Branch.e.rawValue, position: 3)
-        print(String(p.traits, radix: 2))
+        for i in 0..<42 {
+            p.addTraits(Tree.Branch.e.rawValue, position: i * 3)
+            print(String(p.traits.0, radix: 2), terminator: " ")
+            print(String(p.traits.1, radix: 2))
+        }
         
-        p.traitsMask = .masking(from: 0, to: 1)
-        print(String(p.currentTraits(), radix: 2))
+        print("-------")
         
-        p.traitsMask = .masking(from: 0, to: 2)
-        print(String(p.currentTraits(), radix: 2))
-        
-        p.traitsMask = .masking(from: 0, to: 3)
-        print(String(p.currentTraits(), radix: 2))
-
+        for i in 0..<128 {
+            let traitsMask = (
+                UInt64.masking(from: 0, to: i.bound(min: 0, max: 64)),
+                UInt64.masking(from: 0, to: (i - 64).bound(min: 0, max: 64))
+            )
+            print(String(traitsMask.0, radix: 2), terminator: " ")
+            print(String(traitsMask.1, radix: 2))
+        }
     }
 }
 
 // MARK: Equality
 extension Person: Hashable, Comparable {
-    private func currentTraits() -> UInt64 {
-        return traits & traitsMask
+    private func currentTraits() -> (UInt64, UInt64) {
+        return (traits.0 & traitsMask.0, traits.1 & traitsMask.1)
     }
     
     static func ==(lhs: Person, rhs: Person) -> Bool {
@@ -58,7 +65,9 @@ extension Person: Hashable, Comparable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(currentTraits())
+        let values = currentTraits()
+        hasher.combine(values.0)
+        hasher.combine(values.1)
     }
 }
 
@@ -66,7 +75,10 @@ extension Person: Hashable, Comparable {
 extension ContiguousArray where Element == Person {
     func countUniqueItems(upTo trait: Int, uniquesAtPreviousTrait: Int, markUniques: Bool) -> Int {
         let (count, duration) = benchmark {
-            let traitsMask = UInt64.masking(from: 0, to: trait)
+            let traitsMask = (
+                UInt64.masking(from: 0, to: trait.bound(min: 0, max: 64)),
+                UInt64.masking(from: 0, to: (trait - 64).bound(min: 0, max: 64))
+            )
             forEach { $0.traitsMask = traitsMask }
             
             let parallelLevel = 4
