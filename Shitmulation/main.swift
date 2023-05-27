@@ -9,7 +9,7 @@ import Foundation
 
 func main() {
     let startDate = Date()
-    let numberOfTrees = 25
+    let numberOfTrees = 21
     let population = 100_000_000
     let iterationCount = 1
     let concurrency = 1
@@ -49,7 +49,7 @@ func main() {
         "Parameters:",
         "",
         "- numberOfTrees: \(numberOfTrees)",
-        "- traitsPerTree: \(Tree.Branch.a.traits.count)",
+        "- traitsPerTree: \(Tree.Branch.length)",
         "- population: \(population)",
         "- iterationCount: \(iterationCount)",
         "- concurrency: \(concurrency)",

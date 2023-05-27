@@ -31,7 +31,7 @@ class Iteration {
     }
 
     private func generateForest() {
-        log("Creating \(numberOfTrees * 3) traits", newLine: false)
+        log("Creating \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
         self.forest = benchmark("> Finished in") {
             (0..<numberOfTrees).map { i in
                 log(".", newLine: i == numberOfTrees - 1)
@@ -42,23 +42,23 @@ class Iteration {
     }
     
     private func generatePeople() {
-        log("Populating \(population.string) people using \(numberOfTrees * 3) traits", newLine: false)
+        log("Populating \(population.string) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
         self.people = benchmark("> Finished distributing in") {
             
             // create empty people
             var people = ContiguousArray<Person>()
             people.reserveCapacity(population)
             for _ in 0..<population {
-                people.append(Person(traitsCount: forest.count * 3))
+                people.append(Person())
             }
-
+            
             // iterate on each tree
             for (t, tree) in forest.enumerated() {
                 log(".", newLine: t == forest.count - 1)
-
+                
                 // add traits for this tree to all people
-                for p in 0..<people.count {
-                    people[p].addTraits(tree.pickABranch())
+                for p in people {
+                    p.addTraits(tree.pickABranch(), position: t * Tree.Branch.length)
                 }
             }
             return people
@@ -101,7 +101,7 @@ class Iteration {
             }
 
             // second loop
-            for trait in (bisectionIndex + 1)...(numberOfTrees * 3) {
+            for trait in (bisectionIndex + 1)...(numberOfTrees * Tree.Branch.length) {
                 let count = duplicatedAtBisection.countUniqueItems(
                     upTo: trait, uniquesAtPreviousTrait: (uniqCounts[trait - 1] ?? 0), markUniques: true
                 )
@@ -123,13 +123,13 @@ extension Array where Element == Iteration {
 
         var csvTraits = [String]()
         csvTraits.append("Trait;")
-        for i in 0..<(first.numberOfTrees * 3) {
+        for i in 0..<(first.numberOfTrees * Tree.Branch.length) {
             csvTraits.append("\(i+1);")
         }
 
         for (i, iteration) in self.enumerated() {
             csvTraits[0] += "Iteration \(i + 1);"
-            for trait in 1...(first.numberOfTrees * 3) {
+            for trait in 1...(first.numberOfTrees * Tree.Branch.length) {
                 let count = iteration.uniqCounts[trait] ?? first.population
                 csvTraits[trait] += "\(count);"
             }

@@ -9,38 +9,54 @@ import Foundation
 
 final class Person {
     
-    // MARK: Init
-    init(traitsCount: Int) {
-        traits.reserveCapacity(traitsCount)
-    }
-    
     // MARK: Properties
     fileprivate(set) var unique: Bool = false
-    private var traits: Data = Data()
-    fileprivate var currentTrait: Int = 1
+    private(set) var traits: UInt64 = 0 // TODO: switch to bigger later on
+    fileprivate var traitsMask: UInt64 = 0xFFFFFFFF
 
-    func addTraits(_ branch: Tree.Branch) {
-        traits.append(contentsOf: branch.traits.map(\.char))
+    func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
+        // TODO: rewrite in a single C function maybe
+        traits |= UInt64(branch) << (64 - Tree.Branch.length - position)
     }
 }
 
-// MARK: Export
 extension Person {
-    var fileLine: Data {
-        return traits + [0x0A]
+    // TODO: add actual tests ?
+    static func test() {
+        let p = Person()
+
+        p.addTraits(Tree.Branch.e.rawValue, position: 0)
+        print(String(p.traits, radix: 2))
+
+        p.addTraits(Tree.Branch.e.rawValue, position: 3)
+        print(String(p.traits, radix: 2))
+        
+        p.traitsMask = .masking(from: 0, to: 1)
+        print(String(p.currentTraits(), radix: 2))
+        
+        p.traitsMask = .masking(from: 0, to: 2)
+        print(String(p.currentTraits(), radix: 2))
+        
+        p.traitsMask = .masking(from: 0, to: 3)
+        print(String(p.currentTraits(), radix: 2))
+
     }
 }
 
 // MARK: Equality
-extension Person: Hashable {
-    private func currentTraits() -> Data {
-        traits.subarray(maxCount: currentTrait)
+extension Person: Hashable, Comparable {
+    private func currentTraits() -> UInt64 {
+        return traits & traitsMask
     }
     
     static func ==(lhs: Person, rhs: Person) -> Bool {
         return lhs.currentTraits() == rhs.currentTraits()
     }
-    
+
+    static func <(lhs: Person, rhs: Person) -> Bool {
+        return lhs.currentTraits() < rhs.currentTraits()
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(currentTraits())
     }
@@ -50,7 +66,8 @@ extension Person: Hashable {
 extension ContiguousArray where Element == Person {
     func countUniqueItems(upTo trait: Int, uniquesAtPreviousTrait: Int, markUniques: Bool) -> Int {
         let (count, duration) = benchmark {
-            forEach { $0.currentTrait = trait }
+            let traitsMask = UInt64.masking(from: 0, to: trait)
+            forEach { $0.traitsMask = traitsMask }
             
             let set = Counter(items: self)
             

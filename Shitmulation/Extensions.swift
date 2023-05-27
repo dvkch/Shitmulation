@@ -115,3 +115,13 @@ func log(_ message: String, newLine: Bool = true) {
         print(message, terminator: newLine ? "\n" : "")
     }
 }
+
+extension UInt64 {
+    static func masking(from: Int, to: Int) -> UInt64 {
+        var value: UInt64 = 0
+        for i in from...to {
+            value += 1 << (64 - i)
+        }
+        return value
+    }
+}

@@ -11,8 +11,8 @@ class Counter<T: Hashable> {
 
     // MARK: Init
     init(items: ContiguousArray<T>) {
-        for i in 0..<items.count {
-            counts[items[i], default: 0] += 1
+        for item in items {
+            counts[item, default: 0] += 1
         }
     }
     

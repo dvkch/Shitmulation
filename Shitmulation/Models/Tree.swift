@@ -72,7 +72,7 @@ class Tree {
     let g: Int
     let h: Int
     
-    private var remainingBranches: [Tree.Branch] = []
+    private var remainingBranches: [Tree.Branch.RawValue] = []
     
     // MARK: Computed properties
     var eqG: Double {
@@ -168,36 +168,36 @@ extension Tree {
 
 // MARK: Populating
 extension Tree {
-    enum Branch {
-        case a, b, c, d, e, f, g, h
-        
-        static let correspondance: [Branch: [Bool]] = [
-            .a: [true,  false, false],
-            .b: [false, true,  false],
-            .c: [true,  true,  false],
-            .d: [true,  false, true],
-            .e: [true,  true,  true],
-            .f: [false, true,  true],
-            .g: [false, false, true],
-            .h: [false, false, false],
-        ]
+    enum Branch: UInt8 {
+        case a = 0b100
+        case b = 0b010
+        case c = 0b110
+        case d = 0b101
+        case e = 0b111
+        case f = 0b011
+        case g = 0b001
+        case h = 0b000
 
-        var traits: [Bool] {
-            return type(of: self).correspondance[self]!
+        static var length: Int {
+            return 3
         }
     }
+    
+    private func generateBranches() {
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.a.rawValue, count: a))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.b.rawValue, count: b))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.c.rawValue, count: c))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.d.rawValue, count: d))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.e.rawValue, count: e))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.f.rawValue, count: f))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.g.rawValue, count: g))
+        remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.h.rawValue, count: h))
+        remainingBranches.shuffle()
+    }
 
-    func pickABranch() -> Tree.Branch {
+    func pickABranch() -> UInt8 {
         if remainingBranches.isEmpty {
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .a, count: a))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .b, count: b))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .c, count: c))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .d, count: d))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .e, count: e))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .f, count: f))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .g, count: g))
-            remainingBranches.append(contentsOf: [Tree.Branch](repeating: .h, count: h))
-            remainingBranches.shuffle()
+            generateBranches()
         }
         
         // removeFirst() is too expensive, and since the array is shuffled it shouldn't change anything
