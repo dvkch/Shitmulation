@@ -69,9 +69,16 @@ extension ContiguousArray where Element == Person {
             let traitsMask = UInt64.masking(from: 0, to: trait)
             forEach { $0.traitsMask = traitsMask }
             
-            let set = Counter(items: self)
+            let parallelLevel = 6
             
-            let uniquePeople = set.uniqueItems
+            let counters = parallelize(count: parallelLevel, concurrency: parallelLevel) { i in
+                let startOffset = self.count / parallelLevel * i
+                let endOffset   = (self.count / parallelLevel * (i + 1)).bound(min: 0, max: self.count)
+                return Counter(items: ContiguousArray(self[startOffset..<endOffset]))
+            }
+            let counter = Counter.merge(counters)
+            
+            let uniquePeople = counter.uniqueItems
             if markUniques {
                 uniquePeople.markUnique()
             }
