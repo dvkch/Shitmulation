@@ -35,6 +35,7 @@ extension UInt64 {
 }
 
 extension Data {
+    /*
     var traits: Person.Traits {
         assert(count == Person.traitsSize)
         var hi: UInt64 = 0
@@ -51,6 +52,7 @@ extension Data {
         lo = .init(bigEndian: lo)
         return (hi: hi, lo: lo)
     }
+     */
 }
 
 extension TimeInterval {

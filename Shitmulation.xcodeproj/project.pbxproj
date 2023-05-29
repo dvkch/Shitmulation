@@ -12,6 +12,8 @@
 		9741DD1C2A1B72C800D18178 /* People.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD1B2A1B72C800D18178 /* People.swift */; };
 		9741DD212A1C15F200D18178 /* Iteration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD202A1C15F200D18178 /* Iteration.swift */; };
 		9741DD252A1D6E5000D18178 /* Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9741DD242A1D6E5000D18178 /* Memory.swift */; };
+		9742D4EE2A24F8E600BFFCFE /* UInt128.c in Sources */ = {isa = PBXBuildFile; fileRef = 9742D4ED2A24F8E600BFFCFE /* UInt128.c */; };
+		9742D4F02A24F93A00BFFCFE /* UInt128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9742D4EF2A24F93A00BFFCFE /* UInt128.swift */; };
 		9745F79F2A218B01002EC557 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9745F79E2A218B01002EC557 /* Counter.swift */; };
 		9795A18E2A1AAACA00593A73 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9795A18D2A1AAACA00593A73 /* main.swift */; };
 		97DDBD2A2A22AD3700A42A5E /* System.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97DDBD292A22AD3700A42A5E /* System.swift */; };
@@ -38,6 +40,10 @@
 		9741DD202A1C15F200D18178 /* Iteration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Iteration.swift; sourceTree = "<group>"; };
 		9741DD232A1D2EB500D18178 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		9741DD242A1D6E5000D18178 /* Memory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memory.swift; sourceTree = "<group>"; };
+		9742D4EB2A24F8E600BFFCFE /* Shitmulation-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Shitmulation-Bridging-Header.h"; sourceTree = "<group>"; };
+		9742D4EC2A24F8E600BFFCFE /* UInt128.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UInt128.h; sourceTree = "<group>"; };
+		9742D4ED2A24F8E600BFFCFE /* UInt128.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = UInt128.c; sourceTree = "<group>"; };
+		9742D4EF2A24F93A00BFFCFE /* UInt128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UInt128.swift; sourceTree = "<group>"; };
 		9745F79E2A218B01002EC557 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		9795A18A2A1AAACA00593A73 /* Shitmulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Shitmulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		9795A18D2A1AAACA00593A73 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -68,6 +74,9 @@
 				97F6D4A42A21A9FB00F2CCAC /* PRNG.swift */,
 				97DDBD292A22AD3700A42A5E /* System.swift */,
 				9741DD172A1B696A00D18178 /* Tree.swift */,
+				9742D4EC2A24F8E600BFFCFE /* UInt128.h */,
+				9742D4ED2A24F8E600BFFCFE /* UInt128.c */,
+				9742D4EF2A24F93A00BFFCFE /* UInt128.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -93,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				9741DD222A1D2C4300D18178 /* Models */,
+				9742D4EB2A24F8E600BFFCFE /* Shitmulation-Bridging-Header.h */,
 				9741DD192A1B6A1B00D18178 /* Extensions.swift */,
 				9795A18D2A1AAACA00593A73 /* main.swift */,
 			);
@@ -132,6 +142,7 @@
 				TargetAttributes = {
 					9795A1892A1AAACA00593A73 = {
 						CreatedOnToolsVersion = 14.3;
+						LastSwiftMigration = 1430;
 					};
 				};
 			};
@@ -180,8 +191,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9742D4EE2A24F8E600BFFCFE /* UInt128.c in Sources */,
 				97DDBD2A2A22AD3700A42A5E /* System.swift in Sources */,
 				9741DD252A1D6E5000D18178 /* Memory.swift in Sources */,
+				9742D4F02A24F93A00BFFCFE /* UInt128.swift in Sources */,
 				9741DD1C2A1B72C800D18178 /* People.swift in Sources */,
 				9745F79F2A218B01002EC557 /* Counter.swift in Sources */,
 				9795A18E2A1AAACA00593A73 /* main.swift in Sources */,
@@ -312,10 +325,13 @@
 		9795A1922A1AAACA00593A73 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 79RY8264V4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Shitmulation/Shitmulation-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -323,11 +339,13 @@
 		9795A1932A1AAACA00593A73 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 79RY8264V4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Shitmulation/Shitmulation-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

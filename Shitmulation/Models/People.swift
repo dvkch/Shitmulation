@@ -10,8 +10,8 @@ import Foundation
 struct Person {
     
     // MARK: Properties
-    typealias Traits = (hi: UInt64, lo: UInt64)
-    private(set) var traits: Traits = (0, 0)
+    typealias Traits = UInt128
+    private(set) var traits: Traits = .init(lo: 0, hi: 0)
 
     static var traitsSize: Int {
         return MemoryLayout<Traits>.size
@@ -30,16 +30,16 @@ struct Person {
     
     static func mask(forTraitAt trait: Int, reverse: Bool = false) -> Traits {
         if reverse {
-            return (
-                hi: UInt64.masking(from: (64 - trait).bound(min: 0, max: 64), to: 64),
-                lo: UInt64.masking(from: (128 - trait).bound(min: 0, max: 64), to: 64)
+            return UInt128(
+                lo: UInt64.masking(from: (128 - trait).bound(min: 0, max: 64), to: 64),
+                hi: UInt64.masking(from: (64 - trait).bound(min: 0, max: 64), to: 64)
             )
         }
         else {
             // TODO: validate
-            return (
-                hi: UInt64.masking(from: 0, to: (trait - 64).bound(min: 0, max: 64)),
-                lo: UInt64.masking(from: 0, to: trait.bound(min: 0, max: 64))
+            return UInt128(
+                lo: UInt64.masking(from: 0, to: trait.bound(min: 0, max: 64)),
+                hi: UInt64.masking(from: 0, to: (trait - 64).bound(min: 0, max: 64))
             )
         }
     }
