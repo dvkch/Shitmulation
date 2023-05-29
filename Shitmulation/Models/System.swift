@@ -25,6 +25,8 @@ struct System {
         process.standardOutput = output
         try! process.run()
         process.waitUntilExit()
+        output.fileHandleForReading.closeFile()
+        output.fileHandleForWriting.closeFile()
 
         let outputString = String(data: outputData, encoding: .utf8) ?? ""
         return outputString
