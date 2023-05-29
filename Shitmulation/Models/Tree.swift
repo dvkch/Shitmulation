@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Tree {
+struct Tree {
     // MARK: Init
     init(x: Int, indepA_B: Bool, indepC_B: Bool, indepC_A: Bool, indepC_AB: Bool) {
         assert(x % 4 == 0)
@@ -91,8 +91,6 @@ class Tree {
     let f: Int
     let g: Int
     let h: Int
-    
-    private var remainingBranches: [Tree.Branch.RawValue] = []
     
     // MARK: Computed properties
     var eqG: Double {
@@ -203,42 +201,37 @@ extension Tree {
         }
     }
     
-    private func generateBranches() {
+    func generateBranches() -> [Tree.Branch.RawValue] {
+        var branches = [Tree.Branch.RawValue]()
+        branches.reserveCapacity(x)
+
         var gen = L64X128PRNG()
         if a > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.a.rawValue, count: a))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.a.rawValue, count: a))
         }
         if b > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.b.rawValue, count: b))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.b.rawValue, count: b))
         }
         if c > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.c.rawValue, count: c))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.c.rawValue, count: c))
         }
         if d > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.d.rawValue, count: d))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.d.rawValue, count: d))
         }
         if e > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.e.rawValue, count: e))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.e.rawValue, count: e))
         }
         if f > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.f.rawValue, count: f))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.f.rawValue, count: f))
         }
         if g > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.g.rawValue, count: g))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.g.rawValue, count: g))
         }
         if h > 0 {
-            remainingBranches.append(contentsOf: [UInt8](repeating: Tree.Branch.h.rawValue, count: h))
+            branches.append(contentsOf: [UInt8](repeating: Tree.Branch.h.rawValue, count: h))
         }
-        remainingBranches.shuffle(using: &gen)
-    }
-
-    func pickABranch() -> UInt8 {
-        if remainingBranches.isEmpty {
-            generateBranches()
-        }
-        
-        // removeFirst() is too expensive, and since the array is shuffled it shouldn't change anything
-        return remainingBranches.removeLast()
+        branches.shuffle(using: &gen)
+        return branches
     }
 }
 

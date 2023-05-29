@@ -52,9 +52,6 @@ class Iteration {
     }
     
     private func generatePeople() {
-        let populationDir = FileManager.gitRepo.appendingPathComponent("Population", isDirectory: true)
-        try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
-        
         let fileWritingLock = NSLock()
         
         log("Populating \(population.string) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
@@ -72,15 +69,23 @@ class Iteration {
 
                 // iterate on each tree
                 for (t, tree) in forest.enumerated() {
-                    for p in people {
-                        p.addTraits(tree.pickABranch(), position: t * Tree.Branch.length)
+                    let shuffledBranches = tree.generateBranches()
+                    assert(people.count == shuffledBranches.count)
+
+                    for p in 0..<people.count {
+                        // TODO: since we can't count from 1 to N, but from N to 1, maybe we could associate
+                        // traits in reverse order ?
+                        people[p].addTraits(shuffledBranches[p], position: t * Tree.Branch.length)
                     }
                 }
-                
+
                 // write to file
                 fileWritingLock.lock()
                 try! people.writeToFile(url: self.peopleFile, emptyFirst: false)
                 fileWritingLock.unlock()
+                
+                // force free memory
+                people.removeAll(keepingCapacity: false)
 
                 // small output
                 log(".", newLine: strata == self.strataCount - 1)

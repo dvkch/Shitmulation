@@ -172,9 +172,9 @@ extension Sequence {
 }
 
 extension Int {
-    func bound(min: Int, max: Int) -> Int {
-        if self > max { return max }
-        if self < min { return min }
+    func bound(min: Int?, max: Int?) -> Int {
+        if let max, self > max { return max }
+        if let min, self < min { return min }
         return self
     }
 }

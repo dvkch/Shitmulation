@@ -11,8 +11,9 @@ func main() {
     // PARAMS
     let startDate = Date()
     let numberOfTrees = 42
-    let population = 100_000_000
-    let strata = (population / 10_000_000).bound(min: 1, max: 100)
+    let population = 1_000_000_000
+    let maxStrataSize = 10_000_000 // 160MB to generate people
+    let strata = (population / maxStrataSize).bound(min: 1, max: nil)
     let iterationCount = 1
     
     verbose = true

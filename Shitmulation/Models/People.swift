@@ -7,20 +7,17 @@
 
 import Foundation
 
-final class Person {
+struct Person {
     
     // MARK: Properties
-    fileprivate(set) var unique: Bool = false
-    
     typealias Traits = (hi: UInt64, lo: UInt64)
     private(set) var traits: Traits = (0, 0)
-    fileprivate var traitsMask: Traits = (0xFFFFFFFF, 0xFFFFFFFF)
 
     static var traitsSize: Int {
         return MemoryLayout<Traits>.size
     }
     
-    func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
+    mutating func addTraits(_ branch: Tree.Branch.RawValue, position: Int) {
         // TODO: rewrite in a single C function maybe?
         let positionsPer64 = 64 - (64 % Tree.Branch.length)
         if position < positionsPer64 {
@@ -57,7 +54,7 @@ final class Person {
 extension Person {
     // TODO: add actual tests ?
     static func test() {
-        let p = Person()
+        var p = Person()
         
         for i in 0..<42 {
             p.addTraits(Tree.Branch.e.rawValue, position: i * 3)
@@ -79,27 +76,6 @@ extension Person {
             print(traitsMask.hi.bin, terminator: "")
             print(traitsMask.lo.bin)
         }
-    }
-}
-
-// MARK: Equality
-extension Person: Hashable, Comparable {
-    private func currentTraits() -> (UInt64, UInt64) {
-        return (traits.0 & traitsMask.0, traits.1 & traitsMask.1)
-    }
-    
-    static func ==(lhs: Person, rhs: Person) -> Bool {
-        return lhs.currentTraits() == rhs.currentTraits()
-    }
-
-    static func <(lhs: Person, rhs: Person) -> Bool {
-        return lhs.currentTraits() < rhs.currentTraits()
-    }
-
-    func hash(into hasher: inout Hasher) {
-        let values = currentTraits()
-        hasher.combine(values.0)
-        hasher.combine(values.1)
     }
 }
 

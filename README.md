@@ -4,32 +4,19 @@
 
 ### Computation time (on M1 Pro, 16GB)
 
-| Kind                                     | Trees | Distributing | Sorting | Counting uniques | File size/memory usage |
-|------------------------------------------|-------|--------------|---------|------------------|------------------------|
-| In memory,   1 million , 21 trees (bit)  |  0.5s |    0.2s      |   N/A   |    0.8s total    |           96MB         |
-| In memory,  10 millions, 21 trees (bit)  |  0.5s |    2.2s      |   N/A   |     14s total    |          1.0GB         |
-| In memory, 100 millions, 21 trees (bit)  |  0.5s |     29s      |   N/A   |     xxx total    |         10.1GB         |
-| File,       10 millions, 25 trees (char) |  0.5s |     51s      |    9s   |    ~2s / trait   |          1.2GB         |
-| File,      100 millions, 25 trees (char) |  0.5s |    510s      |   90s   |   ~20s / trait   |         12.1GB         |
+| Parameters             | Trees | Distributing | Mem usage  | Sorting    | Counting uniques | File usage |
+|------------------------|-------|--------------|------------|------------|------------------|------------|
+|   1 million,  42 trees |  1.6s |    0.2s      |    16MB    |  0.1s      |       0.3s       |     16MB   |
+|  10 millions, 42 trees |  1.6s |    2.0s      |   160MB    |  0.5s      |       3.4s       |    160MB   |
+| 100 millions, 42 trees |  1.6s |    6.4s      | 160MB / th |  5.4s      |      46.6s       |    1.6GB   |
+|   1 billion,  42 trees |  1.6s |     51s      | 160MB / th | 501s (6GB) |                  |   16.0GB   |
 
-### Notes on manual file processing
+### Results
 
-```bash
-# generate population file, then:
-
-# LC_ALL=C compares bytes directly and not lexicographically, 10s of times faster
-LC_ALL=C gsort people.txt > people_sorted.txt
-
-# couting
-for i in (seq 1 120); 
-  echo "Trait $i";
-  guniq -w $i -u people_sorted.txt | count -l;
-end
-```
+cf <./Results>
 
 ### Possible optimisations 
 
-- pack traits into bits
 - walk the traits _byte by byte_ first, and then compare bit by bit inside those 8-traits segmentation
 - bisect the population while comparing the traits
-- execute by chunks -> generate only a part of the population (possible using pickABranch())
+- sort on smaller amount of bits first, then again on the full thing ?
