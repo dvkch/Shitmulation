@@ -97,10 +97,8 @@ class Iteration {
     
     private func sortPeople() {
         log("Sorting...")
-        benchmark("Sorted \(strataCount.string) files in") {
-            [peopleFile].forEachParallel { file in
-                try! file.binSortFile(lineLengthInBytes: Person.traitsSize)
-            }
+        benchmark("Sorted population files in") {
+            try! peopleFile.binSortFile(lineLengthInBytes: Person.traitsSize)
         }
     }
     

@@ -39,31 +39,43 @@ class Counter {
         var shouldStop = false
         while !shouldStop {
             autoreleasepool {
-                var lines = (try? file.read(upToCount: lineLengthInBytes * 1_000_000)) ?? Data()
-                if lines.isEmpty {
+                // read 160KB at a time, preventing small calls to read (syscalls are expensive), while preventing huge reads
+                // sweet spot seems to be around 160KB for now.
+                var chunk = (try? file.read(upToCount: lineLengthInBytes * 10_000)) ?? Data()
+                defer { chunk.removeAll(keepingCapacity: false) }
+
+                if chunk.isEmpty {
                     if previousLine != prevPreviousLine {
                         uniqueItems += 1
                     }
                     shouldStop = true
                     return
                 }
-                for l in 0..<(lines.count / lineLengthInBytes) {
-                    let lineStart = lineLengthInBytes * l
-                    let lineEnd   = lineStart + lineLengthInBytes
-                    let currentLine = lines[lineStart..<lineEnd]
-                    var currentTraits = currentLine.traits
-                    currentTraits = (
-                        hi: currentTraits.hi & comparingMask.hi,
-                        lo: currentTraits.lo & comparingMask.lo
-                    )
+                
+                chunk.withUnsafeBytes { buffer in
+                    buffer.withMemoryRebound(to: UInt64.self) { lines in
+                        var index = lines.startIndex
+                        while lines.index(after: index) < lines.endIndex {
+                            var currentTraits = (
+                                hi: UInt64.init(bigEndian: lines[index]),
+                                lo: UInt64.init(bigEndian: lines[lines.index(after: index)])
+                            )
+                            index = lines.index(after: index)
+                            index = lines.index(after: index)
 
-                    if currentTraits != previousLine && previousLine != prevPreviousLine {
-                        uniqueItems += 1
+                            currentTraits = (
+                                hi: currentTraits.hi & comparingMask.hi,
+                                lo: currentTraits.lo & comparingMask.lo
+                            )
+
+                            if currentTraits != previousLine && previousLine != prevPreviousLine {
+                                uniqueItems += 1
+                            }
+                            prevPreviousLine = previousLine
+                            previousLine = currentTraits
+                        }
                     }
-                    prevPreviousLine = previousLine
-                    previousLine = currentTraits
                 }
-                lines.removeAll(keepingCapacity: false)
             }
         }
     }
