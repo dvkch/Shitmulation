@@ -31,17 +31,21 @@ class Counter {
     
     // MARK: Counting
     private func count() {
+        // mmap isn't as efficient, really.
         let file = try! FileHandle.init(forReadingFrom: fileURL)
         
+        // TODO: store prevLinesDiffer: Bool, instead of having to recompare them
         var prevPreviousLine: Person.Traits = (0, 0)
         var previousLine: Person.Traits = (0, 0)
 
         var shouldStop = false
         while !shouldStop {
             autoreleasepool {
-                // read 160KB at a time, preventing small calls to read (syscalls are expensive), while preventing huge reads
-                // sweet spot seems to be around 160KB for now.
-                var chunk = (try? file.read(upToCount: lineLengthInBytes * 10_000)) ?? Data()
+                // TODO: when comparing a small amount of traits, maybe rebind to UInt8 and skip over some elements ?
+                // trying to read chunks by chunks to prevent small syscalls, and yet prevent huge memory copies.
+                // for 100 million =>    10_000 people at a time (160KB)
+                // for   1 billion => 1_000_000 people at a time  (16MB)
+                var chunk = (try? file.read(upToCount: lineLengthInBytes * 1_000_000)) ?? Data()
                 defer { chunk.removeAll(keepingCapacity: false) }
 
                 if chunk.isEmpty {

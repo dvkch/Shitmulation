@@ -27,7 +27,8 @@ func main() {
             let iteration = Iteration(
                 numberOfTrees: numberOfTrees,
                 population: population,
-                strata: strata
+                strata: strata,
+                writePopulation: true
             )
             iteration.run()
             return iteration

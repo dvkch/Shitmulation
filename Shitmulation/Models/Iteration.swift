@@ -9,21 +9,26 @@ import Foundation
 
 class Iteration {
     // MARK: Init
-    init(numberOfTrees: Int, population: Int, strata: Int) {
+    init(numberOfTrees: Int, population: Int, strata: Int, writePopulation: Bool) {
         self.numberOfTrees = numberOfTrees
         self.population = population
         self.strataCount = strata
-
+        self.writePopulation = writePopulation
+        
         let populationDir = FileManager.gitRepo.appendingPathComponent("Population", isDirectory: true)
         try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
         peopleFile = populationDir.appending(path: "population.bin")
-        FileManager.default.createFile(atPath: peopleFile.path, contents: Data())
+        
+        if writePopulation {
+            FileManager.default.createFile(atPath: peopleFile.path, contents: Data())
+        }
     }
     
     // MARK: Properties
     let numberOfTrees: Int
     let population: Int
     let strataCount: Int
+    let writePopulation: Bool
     
     // MARK: Results
     private(set) var forest: [Tree] = []
@@ -33,9 +38,11 @@ class Iteration {
     
     // MARK: Steps
     func run() {
-        generateForest()
-        generatePeople()
-        sortPeople()
+        if writePopulation {
+            generateForest()
+            generatePeople()
+            sortPeople()
+        }
         countUniquePeople()
     }
 

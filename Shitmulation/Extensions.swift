@@ -198,6 +198,7 @@ extension FileManager {
 
 extension URL {
     func binSortFile(lineLengthInBytes: Int) throws {
+        // TODO: https://github.com/pelotoncycle/bsort/issues/7
         let process = Process()
         process.executableURL = FileManager.gitRepo.appending(path: "Vendor/bsort")
         process.arguments = ["-k", String(lineLengthInBytes), "-r", String(lineLengthInBytes), self.path]
