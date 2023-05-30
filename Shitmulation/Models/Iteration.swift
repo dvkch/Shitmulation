@@ -122,25 +122,25 @@ class Iteration {
         
         benchmark("> Finished counting in") {
             let traitsTotal = numberOfTrees * Tree.Branch.length
-            let traits = 1...traitsTotal
             let lock = NSLock()
-            var shouldStopAfterTrait: Int = traits.max()!
-            traits.forEachParallel { trait in
+            var shouldStopAfterTrait: Int = traitsTotal
+            
+            let traitsAtATime = 8
+            stride(from: 1, to: traitsTotal, by: traitsAtATime).forEachParallel { trait in
                 if trait > shouldStopAfterTrait {
                     return
                 }
 
-                let counter = Counter(fileURL: self.peopleFile, traits: trait)
+                let counts = Counter.count(fileURL: self.peopleFile, forTraits: Array(trait..<(trait + traitsAtATime)))
 
                 lock.lock()
-                self.uniqCounts[trait] = counter.uniqueItems
-                lock.unlock()
-
-                if counter.uniqueItems == self.population {
-                    lock.lock()
-                    shouldStopAfterTrait = trait
-                    lock.unlock()
+                counts.forEach { (trait, count) in
+                    self.uniqCounts[trait] = count
+                    if count == self.population {
+                        shouldStopAfterTrait = trait
+                    }
                 }
+                lock.unlock()
             }
             
             // TODO: reverse counts
