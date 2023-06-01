@@ -198,10 +198,14 @@ extension FileManager {
 
 extension URL {
     func binSortFile(lineLengthInBytes: Int) throws {
-        // TODO: https://github.com/pelotoncycle/bsort/issues/7
         let process = Process()
         process.executableURL = FileManager.gitRepo.appending(path: "Vendor/bsort")
-        process.arguments = ["-k", String(lineLengthInBytes), "-r", String(lineLengthInBytes), self.path]
+        process.arguments = [
+            "-k", String(lineLengthInBytes),
+            "-r", String(lineLengthInBytes),
+            "-t", String(System.performanceCores), // cores are never used to their full potentials, so let's overpromise
+            self.path
+        ]
         try process.run()
         process.waitUntilExit()
     }

@@ -4,13 +4,13 @@
 
 ### Computation time (on M1 Pro, 16GB, Release)
 
-| Parameters             | Trees | Distributing | Mem usage  | File usage | Sorting     | Counting uniques |  Total  |
-|------------------------|-------|--------------|------------|------------|-------------|------------------|---------|
-|   1 million,  42 trees |  1.6s |    0.2s      |    16MB    |     16MB   |   0.1s      |       0.1s       |   2.5s  |
-|  10 millions, 42 trees |  1.6s |    2.0s      |   160MB    |    160MB   |   0.5s      |       0.7s       |   3.7s  |
-| 100 millions, 42 trees |  1.6s |    6.4s      | 160MB / th |    1.6GB   |   5.4s      |       6.0s       |    20s  |
-|   1 billion,  42 trees |  1.6s |     51s      | 160MB / th |   16.0GB   |  500s (6GB) |  32s  (2s/Trait) |  ~590s  |
-|  10 billions, 42 trees |  1.6s |    474s      | 160MB / th |  160.0GB   | 6363s (8GB) | 268s (16s/Trait) | ~7475s  |
+| Parameters             | Trees | Distributing | Mem usage  | File usage | Sorting             | Counting uniques |  Total  |
+|------------------------|-------|--------------|------------|------------|---------------------|------------------|---------|
+|   1 million,  42 trees |  1.6s |    0.2s      |    16MB    |     16MB   |   0.1s              |       0.1s       |   2.5s  |
+|  10 millions, 42 trees |  1.6s |    2.0s      |   160MB    |    160MB   |   0.5s              |       0.7s       |   3.7s  |
+| 100 millions, 42 trees |  1.6s |    6.4s      | 160MB / th |    1.6GB   |   6.0s              |       2.8s       |    16s  |
+|   1 billion,  42 trees |  1.6s |     51s      | 160MB / th |   16.0GB   |  120s +  151s (6GB) |  32s  (2s/Trait) |  ~340s  |
+|  10 billions, 42 trees |  1.6s |    474s      | 160MB / th |  160.0GB   | 1200s + 1800s (8GB) | 268s (16s/Trait) | ~3900s  |
 
 ### Results
 
