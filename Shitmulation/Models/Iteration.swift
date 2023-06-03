@@ -80,9 +80,7 @@ class Iteration {
                     assert(people.count == shuffledBranches.count)
 
                     for p in 0..<people.count {
-                        // TODO: since we can't count from 1 to N, but from N to 1, maybe we could associate
-                        // traits in reverse order ?
-                        people[p].addTraits(shuffledBranches[p], position: t * Tree.Branch.length)
+                        people[p].addTraits(shuffledBranches[p], treeIndex: t)
                     }
                 }
 
@@ -112,14 +110,6 @@ class Iteration {
     private func countUniquePeople() {
         log("Counting unique over \(population.string) people")
         
-        // Mean values for trait # where the pop is divided 50/50 unique
-        //  10k => 15
-        // 100k => 19
-        //   1m => 22
-        //  10m => 25
-        
-        let bisectionIndex = 4 + (Int(Darwin.log(Double(population)) / Darwin.log(Double(10)))) * 3
-        
         benchmark("> Finished counting in") {
             let traitsTotal = numberOfTrees * Tree.Branch.length
             let lock = NSLock()
@@ -142,8 +132,6 @@ class Iteration {
                 }
                 lock.unlock()
             }
-            
-            // TODO: reverse counts
         }
     }
 }

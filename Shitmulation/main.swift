@@ -7,13 +7,11 @@
 
 import Foundation
 
-// TODO: switch to UInt128
-// TODO: switch to Swift package instead of Xcode project
-// TODO: make tests
-// TODO: traits from hi to low bit, should allow better sorting and couting uniques from t1 to t128 instead of reversed
 // TODO: run for some hours on 1B and 10B, pusblish results, stop.
 
 func main() {
+    Tests.run(verbose: false)
+    
     // PARAMS
     let startDate = Date()
     let numberOfTrees = 42

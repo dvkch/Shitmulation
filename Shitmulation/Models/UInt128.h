@@ -70,6 +70,12 @@ uint128_or32(UInt128 a, uint32_t b) {
     return r;
 }
 
+inline __attribute__((always_inline))
+UInt128
+uint128_or128(UInt128 a, UInt128 b) {
+    UInt128 r = { a.value | b.value };
+    return r;
+}
 
 inline __attribute__((always_inline))
 UInt128

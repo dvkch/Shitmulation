@@ -14,10 +14,20 @@
 
 ### Results
 
-cf <./Results>
+cf [Results](./Results)
 
 ### Possible optimisations 
 
 - walk the traits _byte by byte_ first, and then compare bit by bit inside those 8-traits segmentation
-- bisect the population while comparing the traits, and filter through smaller files instead
+- bisect the population while comparing the traits, and filter through smaller files instead. it has been abandonned for now because it would required dividing the original population file into two files, which requires twice the space. If we ever go that route again :
+        
+    ```
+    // Mean values for trait # where the pop is divided 50/50 unique
+    //  10k => 15
+    // 100k => 19
+    //   1m => 22
+    //  10m => 25
+    let bisectionIndex = 4 + (Int(Darwin.log(Double(population)) / Darwin.log(Double(10)))) * 3
+    ```
+
 - sort on smaller amount of bits first, then again on the full thing ? parallelize sorting ?

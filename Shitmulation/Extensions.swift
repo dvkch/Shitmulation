@@ -25,34 +25,6 @@ extension UInt64 {
         formatter.includesUnit = true
         return formatter.string(fromByteCount: Int64(self))
     }
-    
-    var data: Data {
-        // using big endian to put back everything in order, trait1 being the first
-        // bit appearing. identical to data.reverse(), but way faster
-        var int = self.bigEndian
-        return Data(bytes: &int, count: MemoryLayout<Self>.size)
-    }
-}
-
-extension Data {
-    /*
-    var traits: Person.Traits {
-        assert(count == Person.traitsSize)
-        var hi: UInt64 = 0
-        var lo: UInt64 = 0
-        
-        self.withUnsafeBytes { buffer in
-            buffer.withMemoryRebound(to: UInt64.self) { bytes in
-                hi = bytes[0]
-                lo = bytes[1]
-            }
-        }
-        
-        hi = .init(bigEndian: hi)
-        lo = .init(bigEndian: lo)
-        return (hi: hi, lo: lo)
-    }
-     */
 }
 
 extension TimeInterval {
@@ -64,9 +36,6 @@ extension TimeInterval {
 extension Bool {
     var int: Int {
         return self ? 1 : 0
-    }
-    var char: UInt8 {
-        return self ? 89 : 78
     }
 }
 
@@ -144,16 +113,6 @@ func log(_ message: String, newLine: Bool = true) {
     }
 }
 
-extension UInt64 {
-    static func masking(from: Int, to: Int) -> UInt64 {
-        var value: UInt64 = 0
-        for i in from...to {
-            value += 1 << i
-        }
-        return value
-    }
-}
-
 extension Sequence {
     func forEachParallel(_ closure: @escaping (Element) -> ()) {
         let queue = OperationQueue()
@@ -187,6 +146,12 @@ extension BinaryInteger {
         let binaryString = String(self, radix: 2)
         let padding = [String](repeating: "0", count: length - binaryString.count).joined()
         return padding + binaryString
+    }
+}
+
+extension UInt128 {
+    var bin: String {
+        return hi.bin + lo.bin
     }
 }
 
