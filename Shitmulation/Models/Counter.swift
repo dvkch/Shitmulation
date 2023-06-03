@@ -47,7 +47,7 @@ class Counter {
         // print report, return results
         let d = duration / TimeInterval(forTraits.count)
         for counter in counters {
-            print("- unique at trait \(counter.traits): \(counter.uniqueItems.string) (\(d.durationString))")
+            log("- unique at trait \(counter.comparedTraitsCount): \(counter.uniqueItems.amountString) (\(d.durationString))")
         }
         return counters.map { ($0.comparedTraitsCount, $0.uniqueItems) }
     }

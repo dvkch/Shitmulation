@@ -15,7 +15,7 @@ class Iteration {
         self.strataCount = strata
         self.writePopulation = writePopulation
         
-        let populationDir = FileManager.gitRepo.appendingPathComponent("Population", isDirectory: true)
+        let populationDir = FileManager.sourceCodeURL.appendingPathComponent("Population", isDirectory: true)
         try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
         peopleFile = populationDir.appending(path: "population.bin")
         
@@ -61,7 +61,7 @@ class Iteration {
     private func generatePeople() {
         let fileWritingLock = NSLock()
         
-        log("Populating \(population.string) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
+        log("Populating \(population.amountString) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
         _ = benchmark("> Finished distributing in") {
             parallelize(count: strataCount) { strata in
                 let forest = self.strataForest.map { $0[strata] }
@@ -108,7 +108,7 @@ class Iteration {
     }
     
     private func countUniquePeople() {
-        log("Counting unique over \(population.string) people")
+        log("Counting unique over \(population.amountString) people")
         
         benchmark("> Finished counting in") {
             let traitsTotal = numberOfTrees * Tree.Branch.length

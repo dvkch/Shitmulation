@@ -20,8 +20,6 @@ func main() {
     let strata = (population / maxStrataSize).bound(min: 1, max: nil)
     let iterationCount = 1
     
-    verbose = true
-    
     // COMPUTE
     // don't parallelize this loop, it's better to properly parallelize
     // what it does instead, to prevent huge memory usage)

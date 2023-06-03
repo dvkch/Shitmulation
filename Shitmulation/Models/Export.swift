@@ -9,9 +9,9 @@ import Foundation
 
 struct Export {
     static func exportFolder(for startDate: Date) -> URL {
-        let url = FileManager.gitRepo
+        let url = FileManager.sourceCodeURL
             .appendingPathComponent("Results", isDirectory: true)
-            .appendingPathComponent(DateFormatter.iso.string(from: startDate), isDirectory: true)
+            .appendingPathComponent(DateFormatter.isoString.string(from: startDate), isDirectory: true)
         try! FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
@@ -27,16 +27,16 @@ struct Export {
         let report = [
             "# Report",
             "",
-            "Started: \(DateFormatter.iso.string(from: startDate))",
+            "Started: \(DateFormatter.isoString.string(from: startDate))",
             "",
             "",
             "Parameters:",
             "",
-            "- numberOfTrees: \(first.numberOfTrees.string)",
+            "- numberOfTrees: \(first.numberOfTrees.amountString)",
             "- traitsPerTree: \(Tree.Branch.length)",
-            "- population: \(first.population.string)",
+            "- population: \(first.population.amountString)",
             "- strata: \(first.strataCount)",
-            "- iterationCount: \(iterations.count.string)",
+            "- iterationCount: \(iterations.count.amountString)",
             "- concurrency: \(concurrency)",
             "",
             "",

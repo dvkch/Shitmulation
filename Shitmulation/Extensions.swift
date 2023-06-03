@@ -8,7 +8,7 @@
 import Foundation
 
 extension Int {
-    var string: String {
+    var amountString: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.hasThousandSeparators = true
@@ -56,7 +56,7 @@ extension Collection where Element: FixedWidthInteger {
 func benchmark<T>(_ message: String, closure: () -> T) -> T {
     let d = Date()
     let result = closure()
-    print(message, Date().timeIntervalSince(d).durationString)
+    log(message + " " + Date().timeIntervalSince(d).durationString)
     return result
 }
 
@@ -64,7 +64,7 @@ func benchmark<T>(_ message: String? = nil, _ closure: () -> T) -> (T, TimeInter
     let d = Date()
     let result = closure()
     if let message {
-        print(message, Date().timeIntervalSince(d).durationString)
+        log(message + " " + Date().timeIntervalSince(d).durationString)
     }
     return (result, Date().timeIntervalSince(d))
 }
@@ -87,7 +87,7 @@ func parallelize<T>(count: Int, closure: @escaping (Int) -> (T)) -> [T] {
 }
 
 extension DateFormatter {
-    static var iso: DateFormatter {
+    static var isoString: DateFormatter {
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd HH'h'mm"
         df.timeZone = .current
@@ -106,9 +106,9 @@ extension URL {
     }
 }
 
-var verbose: Bool = true
+var printLogs: Bool = true
 func log(_ message: String, newLine: Bool = true) {
-    if verbose {
+    if printLogs {
         print(message, terminator: newLine ? "\n" : "")
     }
 }
@@ -156,7 +156,7 @@ extension UInt128 {
 }
 
 extension FileManager {
-    static var gitRepo: URL {
+    static var sourceCodeURL: URL {
         return URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
@@ -166,7 +166,7 @@ extension FileManager {
 extension URL {
     func binSortFile(lineLengthInBytes: Int) throws {
         let process = Process()
-        process.executableURL = FileManager.gitRepo.appending(path: "Vendor/bsort")
+        process.executableURL = FileManager.sourceCodeURL.appending(path: "Vendor/bsort")
         process.arguments = [
             "-k", String(lineLengthInBytes),
             "-r", String(lineLengthInBytes),
