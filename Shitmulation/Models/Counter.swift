@@ -77,12 +77,8 @@ class Counter {
             return
         }
         
-        // TODO: a lot of time is spent in subscript accesses and offset
-        // computations, maybe we could do better in C, or by iterating using forEach
-        var index = people.startIndex
-        while index < people.endIndex {
-            currentTraits = Person.readTraits(from: people[index]) & comparingMask
-            index = people.index(after: index)
+        for person in people {
+            currentTraits = Person.readTraits(from: person) & comparingMask
 
             let differ = previousTraits == nil || currentTraits != previousTraits!
             if prevLinesDiffer && differ {
