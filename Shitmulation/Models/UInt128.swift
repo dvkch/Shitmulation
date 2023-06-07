@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension UInt128 {
+extension UInt128 {
     
     init(lo: UInt64, hi: UInt64) {
         self.init()
@@ -75,11 +75,13 @@ public extension UInt128 {
         lhs = uint128_shr(lhs, rhs)
     }
     
-    static func < (lhs: Self, rhs: Self) -> Bool {
-        return uint128_lt(lhs, rhs)
-    }
+    // TODO: find a way to make public
+    /*
+     static func < (lhs: Self, rhs: Self) -> Bool {
+     return uint128_lt(lhs, rhs)
+     }*/
     
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    static func eq (lhs: Self, rhs: Self) -> Bool {
         return uint128_eq(lhs, rhs)
     }
     
@@ -117,5 +119,31 @@ public extension UInt128 {
             value = value | (UInt128(1) << UInt32(i))
         }
         return value
+    }
+    
+    func byte(at index: UInt8) -> Int {
+        return byte_to_int64((uint128_byte(self, index)))
+    }
+    
+    var bin: String {
+        return hi.bin + lo.bin
+    }
+}
+
+extension UInt128: Hashable, Comparable {
+    public static func ==(lhs: Self, rhs: Self) -> Bool {
+        return lhs.lo == rhs.lo && lhs.hi == rhs.hi
+    }
+    
+    public static func <(lhs: Self, rhs: Self) -> Bool {
+        if (lhs.hi < rhs.hi) {
+            return true
+        }
+        return lhs.lo < rhs.lo
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hi)
+        hasher.combine(lo)
     }
 }

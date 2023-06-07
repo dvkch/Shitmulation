@@ -110,3 +110,17 @@ bool
 uint128_neq(UInt128 a, UInt128 b) {
     return a.value != b.value;
 }
+
+inline __attribute__((always_inline))
+uint8_t
+uint128_byte(UInt128 value, uint8_t index) {
+    return (uint8_t)(value.value >> (index * 8));
+}
+
+inline __attribute__((always_inline))
+size_t
+byte_to_int64(uint8_t byte) {
+    return byte;
+}
+
+

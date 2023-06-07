@@ -149,12 +149,6 @@ extension BinaryInteger {
     }
 }
 
-extension UInt128 {
-    var bin: String {
-        return hi.bin + lo.bin
-    }
-}
-
 extension FileManager {
     static var sourceCodeURL: URL {
         return URL(fileURLWithPath: #file)
