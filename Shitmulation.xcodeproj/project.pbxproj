@@ -127,10 +127,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9795A1912A1AAACA00593A73 /* Build configuration list for PBXNativeTarget "Shitmulation" */;
 			buildPhases = (
+				9741DD1F2A1C0F3800D18178 /* TODOs */,
 				9795A1862A1AAACA00593A73 /* Sources */,
 				9795A1872A1AAACA00593A73 /* Frameworks */,
 				9795A1882A1AAACA00593A73 /* CopyFiles */,
-				9741DD1F2A1C0F3800D18178 /* TODOs */,
 			);
 			buildRules = (
 			);

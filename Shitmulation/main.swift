@@ -13,6 +13,11 @@ func main() {
     Tests.run(verbose: false)
     
     // PARAMS
+    Tree.probabilityIndepA_B = 0.4
+    Tree.probabilityIndepC_B = 0.7
+    Tree.probabilityIndepC_A = 0.7
+    Tree.probabilityIndepC_AB = 0.4
+
     let startDate = Date()
     let numberOfTrees = 42
     let population = 1_000_000_000
