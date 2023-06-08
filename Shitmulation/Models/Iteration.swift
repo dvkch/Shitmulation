@@ -15,7 +15,9 @@ class Iteration {
         self.strataCount = strata
         self.writePopulation = writePopulation
         
-        peopleFile = .init(empty: writePopulation)
+        for digit in 0..<UInt8.max {
+            peopleFiles.append(.init(digit: digit, empty: writePopulation))
+        }
     }
     
     // MARK: Properties
@@ -27,7 +29,7 @@ class Iteration {
     // MARK: Results
     private(set) var forest: [Tree] = []
     private var strataForest: [[Tree]] = []
-    private let peopleFile: PopulationFile
+    private var peopleFiles: [PopulationFile] = []
     private(set) var result = Result()
     
     // MARK: Steps
@@ -75,9 +77,16 @@ class Iteration {
                         people[p].addTraits(shuffledBranches[p], treeIndex: t)
                     }
                 }
+                people.sort()
 
                 // write to file
-                try! self.peopleFile.write(people)
+                var groupedPeople = Array(repeating: [Person](), count: 256)
+                people.forEach { p in
+                    groupedPeople[p.traits.byte(at: 15)].append(p)
+                }
+                for file in self.peopleFiles {
+                    try! file.write(groupedPeople[Int(file.digit)])
+                }
                 
                 // force free memory
                 people.removeAll(keepingCapacity: false)
@@ -94,10 +103,14 @@ class Iteration {
         var allSorted = true
         log("Sorting...", newLine: false)
         benchmark("\nSorted population files in") {
-            try! peopleFile.sortFile()
-            if !peopleFile.ensureSorted() {
-                print("not properly sorted!")
-                allSorted = false
+            peopleFiles.sorted().forEachParallel { file in
+                try! file.sortFile()
+
+                if !file.ensureSorted() {
+                    print("\(file.digit) not properly sorted!")
+                    allSorted = false
+                }
+                log(".", newLine: false)
             }
         }
         
@@ -122,15 +135,19 @@ class Iteration {
                 
                 let traitsToStudy = Array(trait..<(trait + traitsAtATime))
 
-                let counts = Counter.count(file: self.peopleFile, forTraits: traitsToStudy)
+                var result = Result()
+                for file in self.peopleFiles {
+                    result += Counter.count(file: file, forTraits: traitsToStudy)
+                }
                 
-                let d = counts.duration / TimeInterval(traitsToStudy.count)
+                let d = result.duration / TimeInterval(traitsToStudy.count)
                 for trait in traitsToStudy {
-                    log("- unique at trait \(trait): \(counts.counts[trait]!.amountString) (\(d.durationString))")
+                    log("- unique at trait \(trait): \(result.counts[trait]!.amountString) (\(d.durationString))")
                 }
 
                 lock.lock()
-                self.result += counts
+                self.result += result
+
                 if self.result.counts.values.contains(self.population) {
                     shouldStopAfterTrait = trait
                 }

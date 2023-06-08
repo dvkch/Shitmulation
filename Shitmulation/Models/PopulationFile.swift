@@ -11,16 +11,18 @@ struct PopulationFile {
     
     // MARK: Init
     init(uuid: UUID) {
+        self.digit = 0
         self.url = FileManager.default.temporaryDirectory.appendingPathComponent(uuid.uuidString)
         self.lock = NSLock()
         empty()
     }
 
-    init(empty: Bool) {
+    init(digit: UInt8, empty: Bool) {
         let populationDir = FileManager.sourceCodeURL.appendingPathComponent("Population", isDirectory: true)
         try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
 
-        self.url = populationDir.appending(path: "population.bin")
+        self.digit = digit
+        self.url = populationDir.appending(path: "population-\(digit).bin")
         self.lock = NSLock()
 
         if empty || !FileManager.default.fileExists(atPath: url.path) {
@@ -29,6 +31,7 @@ struct PopulationFile {
     }
     
     // MARK: Properties
+    let digit: UInt8
     private let url: URL
     private let lock: NSLock
     
@@ -154,5 +157,15 @@ fileprivate extension Person {
     @inline(__always)
     static func readTraits(from value: UInt128) -> Person.Traits {
         return value.bigEndian
+    }
+}
+
+extension PopulationFile: Comparable {
+    static func ==(lhs: PopulationFile, rhs: PopulationFile) -> Bool {
+        return lhs.url == rhs.url
+    }
+
+    static func <(lhs: PopulationFile, rhs: PopulationFile) -> Bool {
+        return lhs.digit < rhs.digit
     }
 }
