@@ -34,7 +34,7 @@ class Iteration {
     private(set) var forest: [Tree] = []
     private var strataForest: [[Tree]] = []
     private let peopleFile: URL
-    private(set) var uniqCounts: [Int: Int] = [:]
+    private(set) var result = Result()
     
     // MARK: Steps
     func run() {
@@ -120,15 +120,15 @@ class Iteration {
                 if trait > shouldStopAfterTrait {
                     return
                 }
+                
+                let traitsToStudy = Array(trait..<(trait + traitsAtATime))
 
-                let counts = Counter.count(fileURL: self.peopleFile, forTraits: Array(trait..<(trait + traitsAtATime)))
+                let counts = Counter.count(fileURL: self.peopleFile, forTraits: traitsToStudy)
 
                 lock.lock()
-                counts.forEach { (trait, count) in
-                    self.uniqCounts[trait] = count
-                    if count == self.population {
-                        shouldStopAfterTrait = trait
-                    }
+                self.result += counts
+                if self.result.counts.values.contains(self.population) {
+                    shouldStopAfterTrait = trait
                 }
                 lock.unlock()
             }
@@ -150,7 +150,7 @@ extension Array where Element == Iteration {
         for (i, iteration) in self.enumerated() {
             csvTraits[0] += "Iteration \(i + 1);"
             for trait in 1...(first.numberOfTrees * Tree.Branch.length) {
-                let count = iteration.uniqCounts[trait] ?? first.population
+                let count = iteration.result.counts[trait] ?? first.population
                 csvTraits[trait] += "\(count);"
             }
         }

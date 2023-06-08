@@ -10,7 +10,8 @@ import Foundation
 // This class will count the number of unique lines in a sorted file, considering only the first N bits for each chunk.
 // To do so quickly over large files, we have an easy method that will read the file once, and count for multiple values of N.
 class Counter {
-    static func count(fileURL: URL, forTraits: [Int]) -> [(Int, Int)] {
+    static func count(fileURL: URL, forTraits: [Int]) -> Result {
+        // TODO: make sure empty files are handled properly
         let counters = forTraits.map { Counter(comparedTraitsCount: $0) }
 
         let (_, duration) = benchmark {
@@ -43,13 +44,9 @@ class Counter {
                 }
             }
         }
-
-        // print report, return results
-        let d = duration / TimeInterval(forTraits.count)
-        for counter in counters {
-            log("- unique at trait \(counter.comparedTraitsCount): \(counter.uniqueItems.amountString) (\(d.durationString))")
-        }
-        return counters.map { ($0.comparedTraitsCount, $0.uniqueItems) }
+        
+        let counts = counters.map { ($0.comparedTraitsCount, $0.uniqueItems) }
+        return Result(duration: duration, counts: counts)
     }
     
     // MARK: Init
