@@ -7,6 +7,12 @@
 
 import Foundation
 
+#if os(Linux)
+internal func autoreleasepool<T>(closure: () -> (T)) -> T {
+    return closure()
+}
+#endif
+
 extension Bool {
     var int: Int {
         return self ? 1 : 0

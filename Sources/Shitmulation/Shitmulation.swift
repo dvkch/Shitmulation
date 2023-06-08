@@ -8,7 +8,6 @@
 import Foundation
 import ArgumentParser
 
-// TODO: run for some hours on 1B and 10B, pusblish results, stop.
 // TODO: try with UInt128 swift implementation
 // TODO: dockerize
 // https://contabo.com/en/vps/vps-xl-ssd/?image=ubuntu.267&qty=1&contract=1&storage-type=vps-xl-nvme-400-gb
@@ -76,6 +75,8 @@ struct Shitmulation: ParsableCommand {
         // OUTPUT
         let url = Export.exportFolder(for: startDate)
         print("All done and saved to \(url.path)")
+        #if os(macOS)
         url.openInFinder()
+        #endif
     }
 }

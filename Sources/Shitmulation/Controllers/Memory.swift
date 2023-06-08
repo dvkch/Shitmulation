@@ -9,6 +9,7 @@ import Foundation
 
 struct Memory {
     static var currentUsedSize: UInt64 {
+        #if os(macOS)
         var taskInfo = task_vm_info_data_t()
         var count = mach_msg_type_number_t(MemoryLayout<task_vm_info>.size) / 4
         let result: kern_return_t = withUnsafeMutablePointer(to: &taskInfo) {
@@ -18,6 +19,14 @@ struct Memory {
         }
         guard result == KERN_SUCCESS else { return 0 }
         return taskInfo.phys_footprint
+        
+        #else
+        
+        var usage = rusage()
+        getrusage(0 /* RUSAGE_SELF */, &usage);
+        return UInt64(usage.ru_maxrss) * 1024
+        
+        #endif
     }
     
     static var peakMemoryUsage: UInt64 = 0

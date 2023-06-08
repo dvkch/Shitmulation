@@ -9,7 +9,7 @@ import Foundation
 
 struct Export {
     static func exportFolder(for startDate: Date) -> URL {
-        let url = FileManager.sourceCodeURL
+        let url = FileManager.currentFolder
             .appendingPathComponent("Results", isDirectory: true)
             .appendingPathComponent(DateFormatter.isoString.string(from: startDate), isDirectory: true)
         try! FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)

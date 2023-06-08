@@ -11,6 +11,7 @@
 #define __UInt128_H__
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 typedef union {
     __uint128_t value;

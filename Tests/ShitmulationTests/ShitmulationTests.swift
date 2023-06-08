@@ -159,7 +159,7 @@ final class ShitmulationTests: XCTestCase {
     func testSortingBig() throws {
         // write file
         var people = Set<Person>()
-        people.reserveCapacity(10_000_000)
+        people.reserveCapacity(1_000_000)
         
         var prng = L64X128PRNG()
 
@@ -175,12 +175,12 @@ final class ShitmulationTests: XCTestCase {
         let sortedPeople = people.sorted()
         
         let fileSize = sortedPeople.count * MemoryLayout<Person.Traits>.size
-        log("  - writing test file \(UInt64(fileSize).sizeString)")
+        log("- writing test file \(UInt64(fileSize).sizeString)")
 
         // sort file in memory
         file.empty()
         try! file.write(sortedPeople.shuffled(using: &prng))
-        benchmark("  - in memory sorting in") {
+        benchmark("- in memory sorting in") {
             try! file.sortFile(inMemory: true)
             XCTAssertTrue(file.ensureSorted())
         }
@@ -188,7 +188,7 @@ final class ShitmulationTests: XCTestCase {
         // sort file using bsort
         file.empty()
         try! file.write(sortedPeople.shuffled(using: &prng))
-        benchmark("  - bsort sorting in") {
+        benchmark("- bsort sorting in") {
             try! file.sortFile(inMemory: false)
             XCTAssertTrue(file.ensureSorted())
         }

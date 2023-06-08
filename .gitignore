@@ -1,5 +1,7 @@
 # Mine
 /Population
+.build/
+build/
 
 # Xcode
 #

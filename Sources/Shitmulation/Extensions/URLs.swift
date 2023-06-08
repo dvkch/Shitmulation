@@ -8,12 +8,18 @@
 import Foundation
 
 extension FileManager {
-    internal static var sourceCodeURL: URL {
+    internal static var currentFolder: URL {
+        #if os(macOS)
+        // root of source code project
         return URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+        #else
+        // current path
+        return URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        #endif
     }
 }
 

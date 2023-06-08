@@ -19,11 +19,11 @@ public struct PopulationFile {
     }
 
     public init(digit: UInt8, empty: Bool) {
-        let populationDir = FileManager.sourceCodeURL.appendingPathComponent("Population", isDirectory: true)
+        let populationDir = FileManager.currentFolder.appendingPathComponent("Population", isDirectory: true)
         try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
 
         self.digit = digit
-        self.url = populationDir.appending(path: "population-\(digit).bin")
+        self.url = populationDir.appendingPathComponent("population-\(digit).bin")
         self.lock = NSLock()
 
         if empty || !FileManager.default.fileExists(atPath: url.path) {
@@ -138,7 +138,11 @@ public struct PopulationFile {
             }
 
             let process = Process()
-            process.executableURL = FileManager.sourceCodeURL.appending(path: "Vendor/bsort")
+            #if os(macOS)
+            process.executableURL = FileManager.currentFolder.appendingPathComponent("Vendor/bsort")
+            #else
+            process.executableURL = URL(fileURLWithPath: "/usr/local/bin/bsort")
+            #endif
             process.arguments = [
                 // TODO: "-c", "8",
                 "-r", String(MemoryLayout<Person.Traits>.size),
