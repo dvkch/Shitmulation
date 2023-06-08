@@ -136,6 +136,7 @@ extension UInt128: Hashable, Comparable {
     }
     
     public static func <(lhs: Self, rhs: Self) -> Bool {
+        // TODO: is this right?
         if (lhs.hi < rhs.hi) {
             return true
         }
