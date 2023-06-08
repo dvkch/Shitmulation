@@ -65,8 +65,9 @@ public struct PopulationFile {
             data.removeAll(keepingCapacity: true)
             people[startIndex..<endIndex].forEach { p in
                 p.write(into: &data)
-                Memory.updatePeakMemoryUsage()
             }
+
+            Memory.updatePeakMemoryUsage()
             try file.write(contentsOf: data)
         }
     }
