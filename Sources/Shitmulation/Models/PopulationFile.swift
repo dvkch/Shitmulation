@@ -6,18 +6,19 @@
 //
 
 import Foundation
+import ShitmulationC
 
-struct PopulationFile {
+public struct PopulationFile {
     
     // MARK: Init
-    init(uuid: UUID) {
+    public init(uuid: UUID) {
         self.digit = 0
         self.url = FileManager.default.temporaryDirectory.appendingPathComponent(uuid.uuidString)
         self.lock = NSLock()
         empty()
     }
 
-    init(digit: UInt8, empty: Bool) {
+    public init(digit: UInt8, empty: Bool) {
         let populationDir = FileManager.sourceCodeURL.appendingPathComponent("Population", isDirectory: true)
         try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
 
@@ -36,14 +37,14 @@ struct PopulationFile {
     private let lock: NSLock
     
     // MARK: Generic methods
-    func empty() {
+    public func empty() {
         lock.lock()
         defer { lock.unlock() }
         
         FileManager.default.createFile(atPath: url.path, contents: Data())
     }
 
-    func write<T: RandomAccessCollection<Person>>(_ people: T) throws where T.Index == Int {
+    public func write<T: RandomAccessCollection<Person>>(_ people: T) throws where T.Index == Int {
         lock.lock()
         defer { lock.unlock() }
         
@@ -70,7 +71,7 @@ struct PopulationFile {
         }
     }
 
-    func read(closure: (Array<Person.Traits>, inout Bool) -> ()) {
+    public func read(closure: (Array<Person.Traits>, inout Bool) -> ()) {
         lock.lock()
         defer { lock.unlock() }
         
@@ -104,7 +105,7 @@ struct PopulationFile {
         }
     }
     
-    var savedCount: Int {
+    public var savedCount: Int {
         lock.lock()
         defer { lock.unlock() }
         
@@ -113,7 +114,7 @@ struct PopulationFile {
         return Int(fileSize / UInt64(MemoryLayout<Person.Traits>.size))
     }
     
-    func sortFile(inMemory: Bool = false) throws {
+    public func sortFile(inMemory: Bool = false) throws {
         if inMemory {
             var people = ContiguousArray<Person>()
             people.reserveCapacity(savedCount)
@@ -149,7 +150,7 @@ struct PopulationFile {
         }
     }
     
-    func ensureSorted() -> Bool {
+    public func ensureSorted() -> Bool {
         var isSorted = true
         var prevChunkLastValue: Person.Traits = .init()
 
@@ -192,11 +193,11 @@ fileprivate extension Person {
 }
 
 extension PopulationFile: Comparable {
-    static func ==(lhs: PopulationFile, rhs: PopulationFile) -> Bool {
+    public static func ==(lhs: PopulationFile, rhs: PopulationFile) -> Bool {
         return lhs.url == rhs.url
     }
 
-    static func <(lhs: PopulationFile, rhs: PopulationFile) -> Bool {
+    public static func <(lhs: PopulationFile, rhs: PopulationFile) -> Bool {
         return lhs.digit < rhs.digit
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Tree {
+public struct Tree {
     // MARK: Init
     init(x: Int, indepA_B: Bool, indepC_B: Bool, indepC_A: Bool, indepC_AB: Bool) {
         assert(x % 4 == 0)
@@ -76,21 +76,21 @@ struct Tree {
     }
     
     // MARK: Properties
-    let indepA_B: Bool
-    let indepC_B: Bool
-    let indepC_A: Bool
-    let indepC_AB: Bool
+    public let indepA_B: Bool
+    public let indepC_B: Bool
+    public let indepC_A: Bool
+    public let indepC_AB: Bool
     
-    let x: Int
+    public let x: Int
     
-    let a: Int
-    let b: Int
-    let c: Int
-    let d: Int
-    let e: Int
-    let f: Int
-    let g: Int
-    let h: Int
+    public let a: Int
+    public let b: Int
+    public let c: Int
+    public let d: Int
+    public let e: Int
+    public let f: Int
+    public let g: Int
+    public let h: Int
     
     // MARK: Computed properties
     var eqG: Double {
@@ -122,12 +122,12 @@ struct Tree {
 
 // MARK: Validation
 extension Tree {
-    static var probabilityIndepA_B: Double = 0
-    static var probabilityIndepC_B: Double = 0
-    static var probabilityIndepC_A: Double = 0
-    static var probabilityIndepC_AB: Double = 0
+    static var probabilityIndepA_B: Double = 0.5
+    static var probabilityIndepC_B: Double = 0.5
+    static var probabilityIndepC_A: Double = 0.5
+    static var probabilityIndepC_AB: Double = 0.5
 
-    static func generateValidTree(population: Int) -> Tree {
+    public static func generateValidTree(population: Int) -> Tree {
         let indepA_B  = Double.random(in: 0...1) > Tree.probabilityIndepA_B
         let indepC_B  = Double.random(in: 0...1) > Tree.probabilityIndepC_B
         let indepC_A  = Double.random(in: 0...1) > Tree.probabilityIndepC_A
@@ -191,7 +191,7 @@ extension Tree {
 
 // MARK: Populating
 extension Tree {
-    enum Branch: UInt8, CaseIterable {
+    public enum Branch: UInt8, CaseIterable {
         case a = 0b100
         case b = 0b010
         case c = 0b110
@@ -206,7 +206,7 @@ extension Tree {
         }
     }
     
-    func generateBranches() -> [Tree.Branch.RawValue] {
+    public func generateBranches() -> [Tree.Branch.RawValue] {
         var branches = [Tree.Branch.RawValue]()
         branches.reserveCapacity(x)
 
@@ -242,7 +242,7 @@ extension Tree {
 
 // MARK: Strata
 extension Tree {
-    func strataSubtrees(count: Int) -> [Tree] {
+    public func strataSubtrees(count: Int) -> [Tree] {
         let subpopulation = x / count
         var trees = [Tree]()
         for _ in 0..<(count - 1) {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ShitmulationC
 
 extension UInt128 {
     
@@ -99,7 +100,7 @@ extension UInt128 {
         )
     }
     
-    static func masking(fromBit from: Int, toBit to: Int) -> UInt128 {
+    public static func masking(fromBit from: Int, toBit to: Int) -> UInt128 {
         var value: UInt128 = .init()
         for i in from..<to {
             value = value | (UInt128(1) << UInt32(i))
@@ -111,7 +112,7 @@ extension UInt128 {
         return byte_to_int64((uint128_byte(self, index)))
     }
     
-    var bin: String {
+    public var bin: String {
         return hi.bin + lo.bin
     }
 }

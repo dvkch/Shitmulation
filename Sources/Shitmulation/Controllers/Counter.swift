@@ -9,8 +9,8 @@ import Foundation
 
 // This class will count the number of unique lines in a sorted file, considering only the first N bits for each chunk.
 // To do so quickly over large files, we have an easy method that will read the file once, and count for multiple values of N.
-class Counter {
-    static func count(file: PopulationFile, forTraits: [Int]) -> Result {
+public class Counter {
+    public static func count(file: PopulationFile, forTraits: [Int]) -> Result {
         // TODO: make sure empty files are handled properly
         let counters = forTraits.map { Counter(comparedTraitsCount: $0) }
 

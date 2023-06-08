@@ -31,20 +31,20 @@ public struct SplitMix64: RandomNumberGenerator {
 
 // https://dl.acm.org/doi/abs/10.1145/3485525
 // from chat gpt and https://github.com/xavierleroy/pringo/commit/2e60db30cc16a7d6ed6be3cebeaae006bff31c56
-struct L64X128PRNG: RandomNumberGenerator {
+public struct L64X128PRNG: RandomNumberGenerator {
     let M: UInt64 = 0xd1342543de82ef95
-    struct LXMState {
+    public struct LXMState {
         var a: UInt64
         var s: UInt64
         var x: (UInt64, UInt64)
         
-        init(a: UInt64, s: UInt64, x: (UInt64, UInt64)) {
+        public init(a: UInt64, s: UInt64, x: (UInt64, UInt64)) {
             self.a = a
             self.s = s
             self.x = x
         }
 
-        init() {
+        public init() {
             var generator = SystemRandomNumberGenerator()
 
             // Ensure a is odd
@@ -66,7 +66,7 @@ struct L64X128PRNG: RandomNumberGenerator {
     }
     private var state: LXMState
     
-    init(seed: LXMState = .init()) {
+    public init(seed: LXMState = .init()) {
         state = seed
     }
     
@@ -74,7 +74,7 @@ struct L64X128PRNG: RandomNumberGenerator {
         return (x &<< k) | (x &>> (64 - k))
     }
     
-    mutating func next() -> UInt64 {
+    public mutating func next() -> UInt64 {
         /* Combining operation */
         var z = state.s &+ state.x.0
  
