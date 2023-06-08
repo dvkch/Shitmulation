@@ -20,8 +20,8 @@ func main() {
 
     let startDate = Date()
     let numberOfTrees = 42
-    let population = 1_000_000_000
-    let maxStrataSize = 10_000_000 // 160MB to generate people
+    let population = 10_000_000_000
+    let maxStrataSize = 5_000_000 // 80MB to generate people, seems to be the most efficient
     let strata = (population / maxStrataSize).bound(min: 1, max: nil)
     let iterationCount = 1
     

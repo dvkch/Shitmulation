@@ -77,7 +77,6 @@ class Iteration {
                         people[p].addTraits(shuffledBranches[p], treeIndex: t)
                     }
                 }
-                people.sort()
                 
                 // write to file
                 let byteIndex = UInt8(MemoryLayout<Person.Traits>.size - 1)
@@ -128,6 +127,12 @@ class Iteration {
             let lock = NSLock()
             var shouldStopAfterTrait: Int = traitsTotal
             
+            // Single threaded benchmark
+            //  4 ->  96 => 24/trait
+            //  6 -> 114 => 19/trait
+            //  8 -> 136 => 17/trait
+            // 10 -> 160 => 16/trait
+            // 12 -> 180 => 15/trait
             let traitsAtATime = 8
             stride(from: 1, to: traitsTotal, by: traitsAtATime).forEachParallel { firstTrait in
                 let traitsToStudy = Array(firstTrait..<(firstTrait + traitsAtATime))

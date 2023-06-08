@@ -68,7 +68,7 @@ struct PopulationFile {
             try file.write(contentsOf: data)
         }
     }
-    
+
     func read(closure: (Array<Person.Traits>, inout Bool) -> ()) {
         lock.lock()
         defer { lock.unlock() }
@@ -116,7 +116,6 @@ struct PopulationFile {
             var people = ContiguousArray<Person>()
             people.reserveCapacity(savedCount)
             read { slice, _ in
-                // TODO: cost of mapping ?
                 people.append(contentsOf: slice.map { Person(traits: $0) })
             }
             people.sort()

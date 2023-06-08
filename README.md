@@ -4,13 +4,18 @@
 
 ### Computation time (on M1 Pro, 16GB, Release)
 
-| Parameters             | Trees | Distributing | Mem usage  | File usage | Sorting             | Counting uniques |  Total  |
-|------------------------|-------|--------------|------------|------------|---------------------|------------------|---------|
-|   1 million,  42 trees |  1.6s |    0.2s      |    16MB    |     16MB   |   0.1s              |       0.1s       |   2.5s  |
-|  10 millions, 42 trees |  1.6s |    2.0s      |   160MB    |    160MB   |   0.5s              |       0.7s       |   3.7s  |
-| 100 millions, 42 trees |  1.6s |    6.4s      | 160MB / th |    1.6GB   |   6.0s              |       2.8s       |    16s  |
-|   1 billion,  42 trees |  1.6s |     51s      | 160MB / th |   16.0GB   |  120s +  151s (6GB) |  32s  (2s/Trait) |  ~340s  |
-|  10 billions, 42 trees |  1.6s |    474s      | 160MB / th |  160.0GB   | 1200s + 1800s (8GB) | 268s (16s/Trait) | ~3900s  |
+| Parameters             | Trees | Distributing | Mem usage  | File usage | Sorting  | Counting uniques |  Total  |
+|------------------------|-------|--------------|------------|------------|----------|------------------|---------|
+|   1 million,  42 trees |  1.6s |    0.2s      |    16MB    |     16MB   |   0.1s   |       0.1s       |   2.5s  |
+|  10 millions, 42 trees |  1.6s |    2.0s      |   160MB    |    160MB   |   0.5s   |       0.7s       |   3.7s  |
+| 100 millions, 42 trees |  1.6s |    8.7s      | 160MB / th |    1.6GB   |   1.3s   |       4.0s       |    19s  |
+|   1 billion,  42 trees |  1.6s |     60s      | 160MB / th |   16.0GB   |    24s   |  41s  (2s/Trait) |   130s  |
+|  10 billions, 42 trees |  1.6s |    454s      | 160MB / th |  160.0GB   |  ~350s   | 408s (16s/Trait) |  1350s  |
+
+Notes : 
+
+- 160MB/thread is to hold a full slice of population, strata of 10 000 000 people. for brief moments, we need twice this, to dispatch in the proper population files.
+- 160GB file size is cumulative. individual file sizes are around 160GB/256, but in reality some of there are around 3GB and others are way smaller (few MB)
 
 ### Results
 
