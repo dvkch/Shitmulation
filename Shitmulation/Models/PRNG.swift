@@ -13,7 +13,7 @@ public struct SplitMix64: RandomNumberGenerator {
     private var state: UInt64
 
     public init() {
-        state = .random(in: 0..<UInt64.max)
+        state = .random(in: 0...UInt64.max)
     }
 
     public init(seed: UInt64) {

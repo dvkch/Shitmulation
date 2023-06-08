@@ -129,15 +129,16 @@ class Iteration {
             var shouldStopAfterTrait: Int = traitsTotal
             
             let traitsAtATime = 8
-            stride(from: 1, to: traitsTotal, by: traitsAtATime).forEachParallel { trait in
-                if trait > shouldStopAfterTrait {
-                    return
-                }
-                
-                let traitsToStudy = Array(trait..<(trait + traitsAtATime))
+            stride(from: 1, to: traitsTotal, by: traitsAtATime).forEachParallel { firstTrait in
+                let traitsToStudy = Array(firstTrait..<(firstTrait + traitsAtATime))
 
                 var result = Result()
                 for file in self.peopleFiles {
+                    if firstTrait > shouldStopAfterTrait {
+                        // abort if in the mean time another one has completed and counted all people
+                        return
+                    }
+
                     result += Counter.count(file: file, forTraits: traitsToStudy)
                 }
                 
@@ -150,7 +151,7 @@ class Iteration {
                 self.result += result
 
                 if self.result.counts.values.contains(self.population) {
-                    shouldStopAfterTrait = trait
+                    shouldStopAfterTrait = firstTrait
                 }
                 lock.unlock()
             }
