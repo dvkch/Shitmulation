@@ -122,10 +122,11 @@ struct Tree {
 
 // MARK: Validation
 extension Tree {
-    static var probabilityIndepA_B = 0
-    static var probabilityIndepC_B = 0
-    static var probabilityIndepC_A = 0
-    static var probabilityIndepC_AB = 0
+    static var probabilityIndepA_B: Double = 0
+    static var probabilityIndepC_B: Double = 0
+    static var probabilityIndepC_A: Double = 0
+    static var probabilityIndepC_AB: Double = 0
+
     static func generateValidTree(population: Int) -> Tree {
         let indepA_B  = Double.random(in: 0...1) > Tree.probabilityIndepA_B
         let indepC_B  = Double.random(in: 0...1) > Tree.probabilityIndepC_B
