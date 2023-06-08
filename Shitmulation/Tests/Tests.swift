@@ -148,47 +148,40 @@ struct Tests {
     @inline(never)
     private static func testExport() {
         // write file
-        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try! generateDummyPeople().writeToFile(url: fileURL, emptyFirst: true)
+        let file = PopulationFile(uuid: UUID())
+        try! file.write(generateDummyPeople())
 
         // read back its content
-        var sortedPeople = [Person.Traits]()
-        let content = try! Data(contentsOf: fileURL)
-        content.withUnsafeBytes { bytes in
-            bytes.withMemoryRebound(to: UInt128.self) { people in
-                people.forEach { person in
-                    sortedPeople.append(person)
-                }
-            }
+        var readPeople = [Person.Traits]()
+        file.read { elements, _ in
+            readPeople.append(contentsOf: elements)
         }
 
         // ensure sort order
-        assert(sortedPeople.count == 5)
-        assert(sortedPeople[0].bigEndian.bin.subarray(maxCount: 6) == "100100") // pAA
-        assert(sortedPeople[1].bigEndian.bin.subarray(maxCount: 6) == "111011") // pEF
-        assert(sortedPeople[2].bigEndian.bin.subarray(maxCount: 6) == "110101") // pCD
-        assert(sortedPeople[3].bigEndian.bin.subarray(maxCount: 6) == "010010") // pBB
-        assert(sortedPeople[4].bigEndian.bin.subarray(maxCount: 6) == "100010") // pAB
+        assert(readPeople.count == 5)
+        assert(readPeople[0].bin.subarray(maxCount: 24) == "000000000000000000100100") // pAA
+        assert(readPeople[1].bin.subarray(maxCount: 24) == "000000000000000000111011") // pEF
+        assert(readPeople[2].bin.subarray(maxCount: 24) == "000000000000000000110101") // pCD
+        assert(readPeople[3].bin.subarray(maxCount: 24) == "000000000000000000010010") // pBB
+        assert(readPeople[4].bin.subarray(maxCount: 24) == "000000000000000000100010") // pAB
     }
     
     @inline(never)
     private static func testSorting() {
         // write file
-        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try! generateDummyPeople().writeToFile(url: fileURL, emptyFirst: true)
+        let file = PopulationFile(uuid: UUID())
+        try! file.write(people)
 
         // sort file
-        try! fileURL.binSortFile(lineLengthInBytes: Person.traitsSize)
+        try! file.sortFile()
+        
+        // ensure it is right
+        assert(file.ensureSorted())
         
         // read back its content
         var sortedPeople = [Person.Traits]()
-        let content = try! Data(contentsOf: fileURL)
-        content.withUnsafeBytes { bytes in
-            bytes.withMemoryRebound(to: UInt128.self) { people in
-                people.forEach { person in
-                    sortedPeople.append(person)
-                }
-            }
+        file.read { elements, _ in
+            sortedPeople.append(contentsOf: elements)
         }
         
         // ensure sort order
@@ -203,15 +196,15 @@ struct Tests {
     @inline(never)
     private static func testCounting() {
         // write file
-        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try! generateDummyPeople().writeToFile(url: fileURL, emptyFirst: true)
+        let file = PopulationFile(uuid: UUID())
+        try! file.write(generateDummyPeople())
 
         // sort file
-        try! fileURL.binSortFile(lineLengthInBytes: Person.traitsSize)
+        try! file.sortFile()
         
         // count items
-        let counts = Counter.count(fileURL: fileURL, forTraits: Array(1...6))
-        let countsDic = counts.reduce(into: [:], { $0[$1.0] = $1.1 })
+        let counts = Counter.count(file: file, forTraits: Array(1...6))
+        let countsDic = counts.counts.reduce(into: [:], { $0[$1.0] = $1.1 })
         let expectedCounts = [
             1: 1,
             2: 1,

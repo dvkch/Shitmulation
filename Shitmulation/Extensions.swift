@@ -156,18 +156,3 @@ extension FileManager {
             .deletingLastPathComponent()
     }
 }
-
-extension URL {
-    func binSortFile(lineLengthInBytes: Int) throws {
-        let process = Process()
-        process.executableURL = FileManager.sourceCodeURL.appending(path: "Vendor/bsort")
-        process.arguments = [
-            "-k", String(lineLengthInBytes),
-            "-r", String(lineLengthInBytes),
-            "-t", String(System.performanceCores), // cores are never used to their full potentials, so let's overpromise
-            self.path
-        ]
-        try process.run()
-        process.waitUntilExit()
-    }
-}

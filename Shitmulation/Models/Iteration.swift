@@ -15,13 +15,7 @@ class Iteration {
         self.strataCount = strata
         self.writePopulation = writePopulation
         
-        let populationDir = FileManager.sourceCodeURL.appendingPathComponent("Population", isDirectory: true)
-        try! FileManager.default.createDirectory(at: populationDir, withIntermediateDirectories: true)
-        peopleFile = populationDir.appending(path: "population.bin")
-        
-        if writePopulation {
-            FileManager.default.createFile(atPath: peopleFile.path, contents: Data())
-        }
+        peopleFile = .init(empty: writePopulation)
     }
     
     // MARK: Properties
@@ -33,7 +27,7 @@ class Iteration {
     // MARK: Results
     private(set) var forest: [Tree] = []
     private var strataForest: [[Tree]] = []
-    private let peopleFile: URL
+    private let peopleFile: PopulationFile
     private(set) var result = Result()
     
     // MARK: Steps
@@ -59,8 +53,6 @@ class Iteration {
     }
     
     private func generatePeople() {
-        let fileWritingLock = NSLock()
-        
         log("Populating \(population.amountString) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
         _ = benchmark("> Finished distributing in") {
             parallelize(count: strataCount) { strata in
@@ -85,9 +77,7 @@ class Iteration {
                 }
 
                 // write to file
-                fileWritingLock.lock()
-                try! people.writeToFile(url: self.peopleFile, emptyFirst: false)
-                fileWritingLock.unlock()
+                try! self.peopleFile.write(people)
                 
                 // force free memory
                 people.removeAll(keepingCapacity: false)
@@ -101,9 +91,18 @@ class Iteration {
     }
     
     private func sortPeople() {
-        log("Sorting...")
-        benchmark("Sorted population files in") {
-            try! peopleFile.binSortFile(lineLengthInBytes: Person.traitsSize)
+        var allSorted = true
+        log("Sorting...", newLine: false)
+        benchmark("\nSorted population files in") {
+            try! peopleFile.sortFile()
+            if !peopleFile.ensureSorted() {
+                print("not properly sorted!")
+                allSorted = false
+            }
+        }
+        
+        if !allSorted {
+            fatalError("Not all files are properly sorted, aborting")
         }
     }
     
@@ -123,7 +122,12 @@ class Iteration {
                 
                 let traitsToStudy = Array(trait..<(trait + traitsAtATime))
 
-                let counts = Counter.count(fileURL: self.peopleFile, forTraits: traitsToStudy)
+                let counts = Counter.count(file: self.peopleFile, forTraits: traitsToStudy)
+                
+                let d = counts.duration / TimeInterval(traitsToStudy.count)
+                for trait in traitsToStudy {
+                    log("- unique at trait \(trait): \(counts.counts[trait]!.amountString) (\(d.durationString))")
+                }
 
                 lock.lock()
                 self.result += counts
