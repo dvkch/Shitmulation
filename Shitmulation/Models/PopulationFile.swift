@@ -64,6 +64,7 @@ struct PopulationFile {
             data.removeAll(keepingCapacity: true)
             people[startIndex..<endIndex].forEach { p in
                 p.write(into: &data)
+                Memory.updatePeakMemoryUsage()
             }
             try file.write(contentsOf: data)
         }
@@ -91,6 +92,7 @@ struct PopulationFile {
                     buffer.withMemoryRebound(to: Person.Traits.self) { elements in
                         // compute the chunk
                         closure(elements.map { Person.readTraits(from: $0) }, &shouldStop)
+                        Memory.updatePeakMemoryUsage()
                     }
                 }
 
@@ -115,10 +117,14 @@ struct PopulationFile {
         if inMemory {
             var people = ContiguousArray<Person>()
             people.reserveCapacity(savedCount)
+
             read { slice, _ in
                 people.append(contentsOf: slice.map { Person(traits: $0) })
             }
+
             people.sort()
+            Memory.updatePeakMemoryUsage()
+
             empty()
             try! write(people)
         }

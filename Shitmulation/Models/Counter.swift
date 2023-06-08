@@ -18,6 +18,8 @@ class Counter {
             file.read { elements, _ in
                 // for each number of traits to consider, count the number of unique lines in that chunk
                 counters.forEach { $0.count(people: elements) }
+
+                Memory.updatePeakMemoryUsage()
             }
         }
         

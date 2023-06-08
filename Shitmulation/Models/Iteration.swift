@@ -84,10 +84,13 @@ class Iteration {
                 people.forEach { p in
                     groupedPeople[p.traits.byte(at: byteIndex)].append(p)
                 }
+                Memory.updatePeakMemoryUsage()
+
                 for file in self.peopleFiles {
                     try! file.write(groupedPeople[Int(file.digit)])
                 }
-                
+                Memory.updatePeakMemoryUsage()
+
                 // force free memory
                 people.removeAll(keepingCapacity: false)
 

@@ -20,7 +20,6 @@ typedef union {
     };
 } UInt128;
 
-
 inline __attribute__((always_inline))
 UInt128
 uint128_add(UInt128 a, UInt128 b) {
