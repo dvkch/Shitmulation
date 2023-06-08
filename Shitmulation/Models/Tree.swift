@@ -191,7 +191,7 @@ extension Tree {
 
 // MARK: Populating
 extension Tree {
-    enum Branch: UInt8 {
+    enum Branch: UInt8, CaseIterable {
         case a = 0b100
         case b = 0b010
         case c = 0b110

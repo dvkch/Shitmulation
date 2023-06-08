@@ -6,6 +6,9 @@
 //
 
 #pragma once
+
+#ifndef __UInt128_H__
+#define __UInt128_H__
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -92,24 +95,11 @@ uint128_shr(UInt128 a, uint32_t b) {
     return r;
 }
 
+extern bool
+uint128_lt(UInt128 a, UInt128 b);
 
-inline __attribute__((always_inline))
-bool
-uint128_lt(UInt128 a, UInt128 b) {
-    return a.value < b.value;
-}
-
-inline __attribute__((always_inline))
-bool
-uint128_eq(UInt128 a, UInt128 b) {
-    return a.value == b.value;
-}
-
-inline __attribute__((always_inline))
-bool
-uint128_neq(UInt128 a, UInt128 b) {
-    return a.value != b.value;
-}
+extern bool
+uint128_eq(UInt128 a, UInt128 b);
 
 inline __attribute__((always_inline))
 uint8_t
@@ -123,4 +113,4 @@ byte_to_int64(uint8_t byte) {
     return byte;
 }
 
-
+#endif

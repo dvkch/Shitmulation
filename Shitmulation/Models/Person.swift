@@ -8,6 +8,9 @@
 import Foundation
 
 struct Person {
+    init(traits: Traits = .init()) {
+        self.traits = traits
+    }
     
     // MARK: Properties
     typealias Traits = UInt128
@@ -30,12 +33,17 @@ struct Person {
     }
 }
 
-extension Person: Comparable {
+extension Person: Comparable, Hashable {
     static func ==(lhs: Person, rhs: Person) -> Bool {
         return lhs.traits == rhs.traits
     }
 
     static func <(lhs: Person, rhs: Person) -> Bool {
         return lhs.traits < rhs.traits
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(traits.hi)
+        hasher.combine(traits.lo)
     }
 }

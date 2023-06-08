@@ -15,7 +15,7 @@ class Iteration {
         self.strataCount = strata
         self.writePopulation = writePopulation
         
-        for digit in 0..<UInt8.max {
+        for digit in 0...UInt8.max {
             peopleFiles.append(.init(digit: digit, empty: writePopulation))
         }
     }
@@ -78,11 +78,12 @@ class Iteration {
                     }
                 }
                 people.sort()
-
+                
                 // write to file
+                let byteIndex = UInt8(MemoryLayout<Person.Traits>.size - 1)
                 var groupedPeople = Array(repeating: [Person](), count: 256)
                 people.forEach { p in
-                    groupedPeople[p.traits.byte(at: 15)].append(p)
+                    groupedPeople[p.traits.byte(at: byteIndex)].append(p)
                 }
                 for file in self.peopleFiles {
                     try! file.write(groupedPeople[Int(file.digit)])
@@ -107,7 +108,7 @@ class Iteration {
                 try! file.sortFile()
 
                 if !file.ensureSorted() {
-                    print("\(file.digit) not properly sorted!")
+                    log("\n\(file.digit) not properly sorted!")
                     allSorted = false
                 }
                 log(".", newLine: false)

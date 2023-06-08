@@ -28,7 +28,8 @@ struct Tests {
         testExport()
         log("- can save people in a binary file")
 
-        testSorting()
+        testSortingSimple()
+        testSortingBig()
         log("- can sort the binary file")
 
         testCounting()
@@ -114,29 +115,29 @@ struct Tests {
     
     private static func generateDummyPeople() -> [Person] {
         var pAA = Person()
-        pAA.addTraits(Tree.Branch.a.rawValue, treeIndex: 0)
-        pAA.addTraits(Tree.Branch.a.rawValue, treeIndex: 1)
-        assert(pAA.traits.bin.subarray(maxCount: 6) == "100100")
+        pAA.addTraits(Tree.Branch.a.rawValue, treeIndex: 6)
+        pAA.addTraits(Tree.Branch.a.rawValue, treeIndex: 7)
+        assert(pAA.traits.bin.subarray(maxCount: 24) == "000000000000000000100100")
 
         var pEF = Person()
-        pEF.addTraits(Tree.Branch.e.rawValue, treeIndex: 0)
-        pEF.addTraits(Tree.Branch.f.rawValue, treeIndex: 1)
-        assert(pEF.traits.bin.subarray(maxCount: 6) == "111011")
+        pEF.addTraits(Tree.Branch.e.rawValue, treeIndex: 6)
+        pEF.addTraits(Tree.Branch.f.rawValue, treeIndex: 7)
+        assert(pEF.traits.bin.subarray(maxCount: 24) == "000000000000000000111011")
 
         var pCD = Person()
-        pCD.addTraits(Tree.Branch.c.rawValue, treeIndex: 0)
-        pCD.addTraits(Tree.Branch.d.rawValue, treeIndex: 1)
-        assert(pCD.traits.bin.subarray(maxCount: 6) == "110101")
+        pCD.addTraits(Tree.Branch.c.rawValue, treeIndex: 6)
+        pCD.addTraits(Tree.Branch.d.rawValue, treeIndex: 7)
+        assert(pCD.traits.bin.subarray(maxCount: 24) == "000000000000000000110101")
 
         var pBB = Person()
-        pBB.addTraits(Tree.Branch.b.rawValue, treeIndex: 0)
-        pBB.addTraits(Tree.Branch.b.rawValue, treeIndex: 1)
-        assert(pBB.traits.bin.subarray(maxCount: 6) == "010010")
+        pBB.addTraits(Tree.Branch.b.rawValue, treeIndex: 6)
+        pBB.addTraits(Tree.Branch.b.rawValue, treeIndex: 7)
+        assert(pBB.traits.bin.subarray(maxCount: 24) == "000000000000000000010010")
 
         var pAB = Person()
-        pAB.addTraits(Tree.Branch.a.rawValue, treeIndex: 0)
-        pAB.addTraits(Tree.Branch.b.rawValue, treeIndex: 1)
-        assert(pAB.traits.bin.subarray(maxCount: 6) == "100010")
+        pAB.addTraits(Tree.Branch.a.rawValue, treeIndex: 6)
+        pAB.addTraits(Tree.Branch.b.rawValue, treeIndex: 7)
+        assert(pAB.traits.bin.subarray(maxCount: 24) == "000000000000000000100010")
 
         // trait 1: pBB is unique, all others are common
         // trait 2: pBB is unique, the others are split in 2 groups
@@ -167,8 +168,15 @@ struct Tests {
     }
     
     @inline(never)
-    private static func testSorting() {
+    private static func testSortingSimple() {
         // write file
+        var people = [Person]()
+        for i in stride(from: 0, to: 128, by: 3) {
+            var p = Person(traits: .masking(fromBit: 128 - i, toBit: 128))
+            people.append(p)
+        }
+        people.shuffle()
+
         let file = PopulationFile(uuid: UUID())
         try! file.write(people)
 
@@ -183,16 +191,61 @@ struct Tests {
         file.read { elements, _ in
             sortedPeople.append(contentsOf: elements)
         }
-        
-        // ensure sort order
-        assert(sortedPeople.count == 5)
-        assert(sortedPeople[0].bigEndian.bin.subarray(maxCount: 6) == "010010") // pBB
-        assert(sortedPeople[1].bigEndian.bin.subarray(maxCount: 6) == "100010") // pAB
-        assert(sortedPeople[2].bigEndian.bin.subarray(maxCount: 6) == "100100") // pAA
-        assert(sortedPeople[3].bigEndian.bin.subarray(maxCount: 6) == "110101") // pCD
-        assert(sortedPeople[4].bigEndian.bin.subarray(maxCount: 6) == "111011") // pEF
+        assert(sortedPeople == people.sorted().map(\.traits))
     }
     
+    @inline(never)
+    private static func testSortingBig() {
+        // write file
+        var people = Set<Person>()
+        people.reserveCapacity(10_000_000)
+        
+        var prng = L64X128PRNG()
+
+        for _ in 0..<people.capacity {
+            var person = Person()
+            for t in 0..<42 {
+                person.addTraits(Tree.Branch.allCases.randomElement(using: &prng)!.rawValue, treeIndex: t)
+            }
+            people.insert(person)
+        }
+
+        let file = PopulationFile(uuid: UUID())
+        let sortedPeople = people.sorted()
+        
+        let fileSize = sortedPeople.count * MemoryLayout<Person.Traits>.size
+        log("  - writing test file \(UInt64(fileSize).sizeString)")
+
+        // sort file in memory
+        file.empty()
+        try! file.write(sortedPeople.shuffled(using: &prng))
+        benchmark("  - in memory sorting in") {
+            try! file.sortFile(inMemory: true)
+            assert(file.ensureSorted())
+        }
+        
+        // sort file using bsort
+        file.empty()
+        try! file.write(sortedPeople.shuffled(using: &prng))
+        benchmark("  - bsort sorting in") {
+            try! file.sortFile(inMemory: false)
+            assert(file.ensureSorted())
+        }
+
+        // read back its content
+        var readPeople = [Person.Traits]()
+        file.read { elements, _ in
+            readPeople.append(contentsOf: elements)
+        }
+        
+        assert(readPeople.count == sortedPeople.count)
+        var differingElements = 0
+        for i in 0..<readPeople.count {
+            differingElements += readPeople[i] != sortedPeople[i].traits ? 1 : 0
+        }
+        assert(differingElements == 0)
+    }
+
     @inline(never)
     private static func testCounting() {
         // write file
@@ -203,15 +256,19 @@ struct Tests {
         try! file.sortFile()
         
         // count items
-        let counts = Counter.count(file: file, forTraits: Array(1...6))
+        let counts = Counter.count(file: file, forTraits: Array(15...24))
         let countsDic = counts.counts.reduce(into: [:], { $0[$1.0] = $1.1 })
         let expectedCounts = [
-            1: 1,
-            2: 1,
-            3: 3,
-            4: 5,
-            5: 5,
-            6: 5
+            15: 0,
+            16: 0,
+            17: 0,
+            18: 0,
+            19: 1,
+            20: 1,
+            21: 3,
+            22: 5,
+            23: 5,
+            24: 5,
         ]
         assert(countsDic == expectedCounts)
     }

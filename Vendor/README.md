@@ -12,3 +12,5 @@
     cmake .
     make
     ```
+
+Turns out, the parallelized version doesn't work and sorts badly when using multiple threads... so we'll only use the original one.

@@ -35,11 +35,11 @@ struct PopulationFile {
     private let url: URL
     private let lock: NSLock
     
-    // MARK: Byte swapping
-    static let swapBytes: Bool = false
-    
     // MARK: Generic methods
     func empty() {
+        lock.lock()
+        defer { lock.unlock() }
+        
         FileManager.default.createFile(atPath: url.path, contents: Data())
     }
 
@@ -102,45 +102,71 @@ struct PopulationFile {
         }
     }
     
-    func sortFile() throws {
-        let process = Process()
-        process.executableURL = FileManager.sourceCodeURL.appending(path: "Vendor/bsort")
-        process.arguments = [
-            // TODO: "-c", "8",
-            "-r", String(MemoryLayout<Person.Traits>.size),
-            "-k", String(MemoryLayout<Person.Traits>.size),
-            url.path
-        ]
-        try process.run()
-        process.waitUntilExit()
+    var savedCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        let file = try! FileHandle.init(forReadingFrom: url)
+        let fileSize = try! file.seekToEnd()
+        return Int(fileSize / UInt64(MemoryLayout<Person.Traits>.size))
+    }
+    
+    func sortFile(inMemory: Bool = false) throws {
+        if inMemory {
+            var people = ContiguousArray<Person>()
+            people.reserveCapacity(savedCount)
+            read { slice, _ in
+                // TODO: cost of mapping ?
+                people.append(contentsOf: slice.map { Person(traits: $0) })
+            }
+            people.sort()
+            empty()
+            try! write(people)
+        }
+        else {
+            let output = Pipe()
+            defer {
+                output.fileHandleForReading.closeFile()
+                output.fileHandleForWriting.closeFile()
+            }
+
+            let process = Process()
+            process.executableURL = FileManager.sourceCodeURL.appending(path: "Vendor/bsort")
+            process.arguments = [
+                // TODO: "-c", "8",
+                "-r", String(MemoryLayout<Person.Traits>.size),
+                "-k", String(MemoryLayout<Person.Traits>.size),
+                url.path
+            ]
+            process.standardOutput = output
+            try process.run()
+            process.waitUntilExit()
+        }
     }
     
     func ensureSorted() -> Bool {
-        // TODO: compare with reading the whole thing in memory and sorting from there ?
-
         var isSorted = true
-        var firstValue: Person.Traits = .init()
+        var prevChunkLastValue: Person.Traits = .init()
 
         read { elements, shouldStop in
-            if firstValue > elements[0] {
+            if elements.isEmpty {
+                return
+            }
+
+            if elements[0] < prevChunkLastValue {
                 isSorted = false
                 shouldStop = true
                 return
             }
-            for i in 1..<elements.count {
-                if elements[i - 1] > elements[i] {
-                    print("--")
-                    print("I:", i)
-                    print("E:", elements[i-1].bin)
-                    print("E:", elements[i].bin)
-                    print("--")
 
+            for i in 1..<elements.count {
+                if elements[i] < elements[i - 1] {
                     isSorted = false
                     shouldStop = true
                     return
                 }
             }
-            firstValue = elements.last!
+            prevChunkLastValue = elements.last!
         }
         return isSorted
     }

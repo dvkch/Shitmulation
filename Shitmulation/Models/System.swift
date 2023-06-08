@@ -15,6 +15,10 @@ struct System {
     static func value(forSys key: SysKey) -> String {
         var outputData = Data()
         let output = Pipe()
+        defer {
+            output.fileHandleForReading.closeFile()
+            output.fileHandleForWriting.closeFile()
+        }
         output.fileHandleForReading.readabilityHandler = {
             outputData.append($0.availableData)
         }
@@ -25,8 +29,6 @@ struct System {
         process.standardOutput = output
         try! process.run()
         process.waitUntilExit()
-        output.fileHandleForReading.closeFile()
-        output.fileHandleForWriting.closeFile()
 
         let outputString = String(data: outputData, encoding: .utf8) ?? ""
         return outputString

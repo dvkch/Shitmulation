@@ -6,3 +6,13 @@
 //
 
 #include "UInt128.h"
+
+bool
+uint128_lt(UInt128 a, UInt128 b) {
+    return a.value < b.value;
+}
+
+bool
+uint128_eq(UInt128 a, UInt128 b) {
+    return a.value == b.value;
+}

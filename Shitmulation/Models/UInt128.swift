@@ -75,20 +75,6 @@ extension UInt128 {
         lhs = uint128_shr(lhs, rhs)
     }
     
-    // TODO: find a way to make public
-    /*
-     static func < (lhs: Self, rhs: Self) -> Bool {
-     return uint128_lt(lhs, rhs)
-     }*/
-    
-    static func eq (lhs: Self, rhs: Self) -> Bool {
-        return uint128_eq(lhs, rhs)
-    }
-    
-    static func != (lhs: Self, rhs: Self) -> Bool {
-        return uint128_neq(lhs, rhs)
-    }
-    
     // https://github.com/Jitsusama/UInt128/blob/master/Sources/UInt128/UInt128.swift
     var bigEndian: UInt128 {
 #if arch(i386) || arch(x86_64) || arch(arm) || arch(arm64)
@@ -130,21 +116,14 @@ extension UInt128 {
     }
 }
 
-extension UInt128: Hashable, Comparable {
-    public static func ==(lhs: Self, rhs: Self) -> Bool {
-        return lhs.lo == rhs.lo && lhs.hi == rhs.hi
+extension UInt128: Comparable {
+    @_transparent
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        return uint128_lt(lhs, rhs)
     }
-    
-    public static func <(lhs: Self, rhs: Self) -> Bool {
-        // TODO: is this right?
-        if (lhs.hi < rhs.hi) {
-            return true
-        }
-        return lhs.lo < rhs.lo
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(hi)
-        hasher.combine(lo)
+
+    @_transparent
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        return uint128_eq(lhs, rhs)
     }
 }
