@@ -14,14 +14,14 @@
 |   1 billion, <br/>42 trees |  1.6s |     60s      | 160MB / th |   16.0GB   |    24s   |  41s  (2s/Trait) |   130s  |
 |  10 billions,<br/>42 trees |  1.6s |    454s      | 160MB / th |  160.0GB   |  ~350s   | 408s (16s/Trait) |  1350s  |
 
-#### Ubuntu x64, 2 vCPU, 2 threads, 4GB, Release
+#### Ubuntu x64, 4 vCPU, 4 threads, 4GB, Release
 
 | Parameters                 | Trees | Distributing | Mem usage  | File usage | Sorting  | Counting uniques |  Total  |
 |----------------------------|-------|--------------|------------|------------|----------|------------------|---------|
-|   1 million, <br/>42 trees |   13s |      1s      |    16MB    |     16MB   |   0.3s   |       0.3s       |    14s  |
-|  10 millions,<br/>42 trees |   13s |      5s      |   160MB    |    160MB   |   0.7s   |       3.3s       |    23s  |
-| 100 millions,<br/>42 trees |   13s |     52s      | 160MB / th |    1.6GB   |     7s   |        36s       |   108s  |
-|   1 billion, <br/>42 trees |   13s |    527s      | 160MB / th |   16.0GB   |    93s   |       563s       |  1190s  |
+|   1 million, <br/>42 trees |   13s |      1s      |    16MB    |     16MB   |   0.1s   |       0.2s       |    14s  |
+|  10 millions,<br/>42 trees |   13s |      5s      |   160MB    |    160MB   |   0.3s   |       1.3s       |    21s  |
+| 100 millions,<br/>42 trees |   13s |     30s      | 160MB / th |    1.6GB   |     4s   |        19s       |    70s  |
+|   1 billion, <br/>42 trees |   13s |    297s      | 160MB / th |   16.0GB   |    52s   |       323s       |   687s  |
 
 #### Notes
 
