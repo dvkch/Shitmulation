@@ -16,7 +16,7 @@ struct Export {
         return url
     }
     
-    static func saveResult(_ results: [(Iteration, TimeInterval)], for startDate: Date, concurrency: Int) {
+    static func saveResult(_ results: [(Iteration, TimeInterval)], for startDate: Date) {
         let exportFolder = exportFolder(for: startDate)
         
         let iterations = results.map(\.0)
@@ -41,7 +41,7 @@ struct Export {
             "- population: \(first.population.amountString)",
             "- strata: \(first.strataCount)",
             "- iterationCount: \(iterations.count.amountString)",
-            "- concurrency: \(concurrency)",
+            "- cores detected: \(System.performanceCores)",
             "",
             "",
             "Results:",
