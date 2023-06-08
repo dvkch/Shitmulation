@@ -31,17 +31,17 @@ struct System {
     }
 
     #if os(macOS)
-    enum SysKey: String {
+    private enum SysKey: String {
         case logicalPerformanceCores = "hw.perflevel0.logicalcpu_max"
     }
     
-    static func sysctl(key: SysKey) -> String {
+    private static func sysctl(key: SysKey) -> String {
         let output = getOutput(from: "/usr/sbin/sysctl", arguments: [key.rawValue])
         return output.replacingOccurrences(of: key.rawValue + ": ", with: "")
     }
     #endif
     
-    static var performanceCores: Int {
+    private static var performanceCores: Int {
         #if os(macOS)
         let value = self.sysctl(key: .logicalPerformanceCores)
         return Int(value) ?? 4
@@ -51,6 +51,16 @@ struct System {
             .split(separator: "\n")
             .filter { !$0.starts(with: "#") }
             .count
+        #endif
+    }
+    
+    static var recommendedThreadsCount: Int {
+        #if os(macOS)
+        // keeping 1 core available on macOS for the rest of the system
+        return performanceCores - 1
+        #else
+        // using all on linux server
+        return performanceCores
         #endif
     }
 }

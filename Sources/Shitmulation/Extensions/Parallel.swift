@@ -7,11 +7,11 @@
 
 import Foundation
 
-internal func parallelize<T>(count: Int, closure: @escaping (Int) -> (T)) -> [T] {
+internal func parallelize<T>(count: Int, threads: Int, closure: @escaping (Int) -> (T)) -> [T] {
     let lock = NSLock()
     var results = [Int: T]()
 
-    (0..<count).forEachParallel { i in
+    (0..<count).forEachParallel(threads: threads) { i in
         let result = autoreleasepool {
             closure(i)
         }
@@ -25,10 +25,10 @@ internal func parallelize<T>(count: Int, closure: @escaping (Int) -> (T)) -> [T]
 }
 
 extension Sequence {
-    internal func forEachParallel(_ closure: @escaping (Element) -> ()) {
+    internal func forEachParallel(threads: Int, _ closure: @escaping (Element) -> ()) {
         let queue = OperationQueue()
         queue.qualityOfService = .userInteractive
-        queue.maxConcurrentOperationCount = System.performanceCores - 1
+        queue.maxConcurrentOperationCount = threads
         
         let group = DispatchGroup()
 

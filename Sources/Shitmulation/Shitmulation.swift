@@ -43,6 +43,9 @@ struct Shitmulation: ParsableCommand {
     @Option(name: .customLong("iterations"), help: "Number of iterations")
     var iterationCount: Int = 1
 
+    @Option(name: .customLong("threads"), help: "Threads to use")
+    var threads: Int = System.recommendedThreadsCount
+    
     func run() throws {
         // PARAMS
         let startDate = Date()
@@ -62,6 +65,7 @@ struct Shitmulation: ParsableCommand {
                     numberOfTrees: numberOfTrees,
                     population: population,
                     strata: strata,
+                    threads: threads,
                     writePopulation: true
                 )
                 iteration.run()
@@ -69,7 +73,7 @@ struct Shitmulation: ParsableCommand {
             }
             
             results.append((iteration, duration))
-            Export.saveResult(results, for: startDate)
+            Export.saveResult(results, for: startDate, threads: threads)
         }
         
         // OUTPUT

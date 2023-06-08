@@ -9,10 +9,11 @@ import Foundation
 
 class Iteration {
     // MARK: Init
-    init(numberOfTrees: Int, population: Int, strata: Int, writePopulation: Bool) {
+    init(numberOfTrees: Int, population: Int, strata: Int, threads: Int, writePopulation: Bool) {
         self.numberOfTrees = numberOfTrees
         self.population = population
         self.strataCount = strata
+        self.threads = threads
         self.writePopulation = writePopulation
         
         for digit in 0...UInt8.max {
@@ -24,6 +25,7 @@ class Iteration {
     let numberOfTrees: Int
     let population: Int
     let strataCount: Int
+    let threads: Int
     let writePopulation: Bool
     
     // MARK: Results
@@ -57,7 +59,7 @@ class Iteration {
     private func generatePeople() {
         log("Populating \(population.amountString) people using \(numberOfTrees * Tree.Branch.length) traits", newLine: false)
         _ = benchmark("> Finished distributing in") {
-            parallelize(count: strataCount) { strata in
+            parallelize(count: strataCount, threads: threads) { strata in
                 let forest = self.strataForest.map { $0[strata] }
                 let population = forest.first!.x
                 
@@ -106,7 +108,7 @@ class Iteration {
         var allSorted = true
         log("Sorting...", newLine: false)
         benchmark("\nSorted population files in") {
-            peopleFiles.sorted().forEachParallel { file in
+            peopleFiles.sorted().forEachParallel(threads: threads) { file in
                 try! file.sortFile()
 
                 if !file.ensureSorted() {
@@ -137,7 +139,7 @@ class Iteration {
             // 10 -> 160 => 16/trait
             // 12 -> 180 => 15/trait
             let traitsAtATime = 8
-            stride(from: 1, to: traitsTotal, by: traitsAtATime).forEachParallel { firstTrait in
+            stride(from: 1, to: traitsTotal, by: traitsAtATime).forEachParallel(threads: threads) { firstTrait in
                 let traitsToStudy = Array(firstTrait..<(firstTrait + traitsAtATime))
 
                 var result = Result()
