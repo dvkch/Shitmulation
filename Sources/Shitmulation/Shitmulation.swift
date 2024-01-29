@@ -11,6 +11,7 @@ import ArgumentParser
 // TODO: try with UInt128 swift implementation
 // TODO: dockerize
 // https://contabo.com/en/vps/vps-xl-ssd/?image=ubuntu.267&qty=1&contract=1&storage-type=vps-xl-nvme-400-gb
+// https://www.seeedstudio.com/reServer-X86-i3-16G-512SSD-p-4966.html
 
 @main
 struct Shitmulation: ParsableCommand {
